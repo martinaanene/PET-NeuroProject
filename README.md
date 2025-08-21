@@ -1,8 +1,7 @@
 Team lead: Chinyere Martina Anene-Ogbe - Brain & Spine Foundation Africa, Abuja, Nigeria.
 
 Team Members:
-
-1. (Add your name - affiliation, city & country)
+1. Nkenganyi Aka Elvira -University of Buea, Buea, Cameroon.
 2. (Add your name - affiliation, city & country)
 3. (Add your name - affiliation, city & country)
 4. (Add your name - affiliation, city & country)
