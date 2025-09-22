@@ -1,4 +1,4 @@
-Team Lead: Chinyere Martina Anene-Ogbe - Brain & Spine Foundation Africa, Abuja, Nigeria.
+Team Lead: Chinyere Martina Anene-Ogbe - Department of Human Anatomy, University of Port-Harcourt, Nigeria.
 
 Team Members:
 1. Nkenganyi Aka Elvira -University of Buea, Buea, Cameroon.
