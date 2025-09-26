@@ -1,5 +1,6 @@
 #!/bin/bash
 # Analysis pipeline (protocol-specific version)
+# ROI definition, SUVR extraction, Centiloid conversion, statistics
 
 # Step 1: Define Regions of Interest (ROI) with FreeSurfer
 # Assuming FreeSurfer has already been run (recon-all completed)
