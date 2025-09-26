@@ -1,5 +1,6 @@
 #!/bin/bash
 # Preprocessing Script (Generalized Version)
+# Co-registration, brain extraction, normalization, smoothing
 
 # Load FSL
 ml fsl/6.0.7.8
