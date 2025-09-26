@@ -63,12 +63,28 @@ Each step has its own script inside the relevant folder:
 ```bash
 # Example: Run generalized preprocessing script
 bash preprocessing/generalized/preprocessing.sh
+``` 
 
+---
 
 ## Usage
 Run each script in order:
+
 ```bash
 bash 01_datastructure.sh
 bash 02_mriqc.sh
 bash 03_preprocessing.sh
 bash 04_analysis.sh
+```
+
+---
+
+## Dependencies
+This pipeline requires:
+
+- **Neurodesk** (container environment)  
+- **dcm2niix v1.0.20240202**  
+- **FSL v6.0.7.8**  
+- **MRIQC v23.1.0**  
+- **FreeSurfer v7.3.2**  
+- **R v4.3.2**
