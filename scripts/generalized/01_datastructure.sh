@@ -1,6 +1,6 @@
 #!/bin/bash
 # Data Structure Script (Generalized Version)
-# This script prepares PET and MRI data, structures them in BIDS format, and validates.
+# This script prepares PET and MRI data, convert DICOM to NIfT, structures the files in BIDS format, and validates.
 # Generalized for multiple subjects and modalities.
 
 # Define variables
