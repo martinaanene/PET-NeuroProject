@@ -1,5 +1,7 @@
 #!/bin/bash
 # Analysis pipeline (generalized version)
+# ROI definition, SUVR extraction, Centiloid conversion, statistics
+
 # Usage:
 #   ./analysis.sh <SUBJECT_ID> <SESSION_ID>
 # Example:
