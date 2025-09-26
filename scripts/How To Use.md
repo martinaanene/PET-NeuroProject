@@ -88,3 +88,8 @@ This pipeline requires:
 - **MRIQC v23.1.0**  
 - **FreeSurfer v7.3.2**  
 - **R v4.3.2**
+
+---
+
+## Documentation
+Full protocol steps are available on [Protocols.io](https://www.protocols.io/private/7660A61B845711F093A30A58A9FEAC02).
