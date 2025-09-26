@@ -15,7 +15,7 @@ cd ~/Desktop/CAPSTONE/capstonebids/sub-02/pet
 fsleyes sub-02_pet.nii.gz
 
 # Step 2: Generate Automated QC Metrics with MRIQC
-ml mriqc/v1.0.20240202
+ml mriqc/v24.0.2
 
 # Set paths
 export BIDSDIR=~/Desktop/CAPSTONE/capstonebids/
