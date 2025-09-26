@@ -1,6 +1,6 @@
 #!/bin/bash
 # Data Structure Script (Protocol-As-Is Version)
-# This script prepares PET and MRI data, structures them in BIDS format, and validates.
+# This script prepares PET and MRI data, converts DICOM to NIfTI, structures the data in BIDS format, and validates.
 
 # Step 1: Create CAPSTONE project directory
 cd ~/Desktop/
