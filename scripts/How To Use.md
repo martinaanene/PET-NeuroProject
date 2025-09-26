@@ -79,13 +79,26 @@ bash 04_analysis.sh
 
 ---
 
+## Running the script in neurodesk
+Run the following commands:
+
+--- 
+    git clone https://github.com/martinaanene/PET-NeuroProject
+    # cd into part of repository containing the .sh file you want to run
+    chmod +x 01_datastructure.sh # 01_datastructure.sh as an example
+    ./01_datastructure.sh
+---
+
+
+---
+
 ## Dependencies
 This pipeline requires:
 
 - **Neurodesk** (container environment)  
 - **dcm2niix v1.0.20240202**  
 - **FSL v6.0.7.8**  
-- **MRIQC v23.1.0**  
+- **MRIQC v24.0.2**  
 - **FreeSurfer v7.3.2**  
 - **R v4.3.2**
 
