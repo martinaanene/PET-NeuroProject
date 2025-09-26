@@ -1,5 +1,6 @@
 #!/bin/bash
 # Preprocessing Script (Protocol-Specific Version)
+# Co-registration, brain extraction, normalization, smoothing
 
 # Step 1: Visual Reorientation
 ml fsl/6.0.7.8
