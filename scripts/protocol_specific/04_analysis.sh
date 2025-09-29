@@ -13,7 +13,7 @@ mri_aparc2aseg --s sub-02 --o sub-02_ROIs.nii.gz
 
 # Step 2: Extract Mean Uptake / SUVr from PET Data
 ml fsl/6.0.7.8
-fslstats pet/sub-02_pet_in_MNI_smoothed.nii.gz -k sub-02_ROIs.nii.gz -M > sub-02_SUVR.txt
+fslstats pet/sub-02_pet_MNI_smoothed.nii.gz -k sub-02_ROIs.nii.gz -M > sub-02_SUVR.txt
 
 # Step 3: Create Participant-Level SUVR CSV
 echo "Subject,ROI,SUVR" > participant_SUVR.csv
@@ -26,7 +26,7 @@ Rscript -e "suvr <- read.csv('participant_SUVR.csv'); \
              write.csv(suvr, 'participant_CL.csv', row.names=FALSE)"
 
 # Step 5: Quality Check (visual)
-fsleyes pet/sub-02_pet_in_MNI_smoothed.nii.gz sub-02_ROIs.nii.gz -cm red
+fsleyes pet/sub-02_pet_MNI_smoothed.nii.gz sub-02_ROIs.nii.gz -cm red
 
 # Step 6: Statistical Analysis (compare to published Centiloid values)
 Rscript -e "data <- read.csv('participant_CL.csv'); \
