@@ -47,7 +47,7 @@ applywarp --in=pet/sub-02_pet.nii.gz \
           --out=pet/sub-02_pet_MNI.nii.gz
 
 # Step 4: Smoothing
-fslmaths pet/sub-064_ses-03_pet_in_MNI.nii.gz -s 3.4 pet/sub-064_ses-03_pet_in_MNI_smoothed.nii.gz
+fslmaths pet/sub-02_pet_MNI.nii.gz -s 3.4 pet/sub-064_ses-03_pet_MNI_smoothed.nii.gz
 
 # Step 5: SUVR Calculation
-fslstats sub-064_ses-03_pet_MNI.nii.gz -k cerebellum_mask.nii.gz -M
+fslstats sub-02_pet_MNI.nii.gz -k cerebellum_mask.nii.gz -M
