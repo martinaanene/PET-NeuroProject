@@ -21,22 +21,20 @@ mkdir -p capstonebids/sub-02/anat capstonebids/sub-02/pet
 
 # Step 5: Convert raw MRI data to NIFTI (dcm2niix)
 ml dcm2niix/v1.0.20240202
-dcm2niix -o $PWD -z y -ba y -v y AD02_MR_DICOM
 
-# Step 6: Move & rename NIFTI + JSON into BIDS folders
-mv <MRI_FILE>.nii.gz capstonebids/sub-02/anat/sub-02_T1w.nii.gz
-mv <MRI_FILE>.json capstonebids/sub-02/anat/sub-02_T1w.json
-mv <PET_FILE>.nii.gz capstonebids/sub-02/pet/sub-02_pet.nii.gz
-mv <PET_FILE>.json capstonebids/sub-02/pet/sub-02_pet.json
+dcm2niix -o ~/Desktop/CAPSTONE/capstonebids/sub-02/anat -f sub-02_T1w -z y -ba y -v y AD02_MR_DICOM
 
-# Step 7: Create dataset_description.json
+dcm2niix -o ~/Desktop/CAPSTONE/capstonebids/sub-02/pet -f sub-02_pet -z y -ba y -v y AD02
+
+
+# Step 6: Create dataset_description.json
 cd capstonebids/
 echo '{ "Name": "capstone_dataset", "BIDSVersion": "1.8.0" }' > dataset_description.json
 
-# Step 8: View structure
+# Step 7: View structure
 tree
 
-# Step 9: Validate BIDS
+# Step 8: Validate BIDS
 conda install conda-forge::deno -y
 conda activate
 deno run -ERWN jsr:@bids/validator capstonebids/ --ignoreWarnings
