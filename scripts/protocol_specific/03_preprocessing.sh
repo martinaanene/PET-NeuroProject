@@ -51,4 +51,8 @@ applywarp --in=pet/sub-02_pet.nii.gz \
 fslmaths pet/sub-02_pet_to_MNI.nii.gz -s 3.4 pet/sub-02_pet_to_MNI_smoothed.nii.gz
 
 # Step 5: SUVR Calculation
-fslstats sub-02_pet_to_MNI.nii.gz -k cerebellum_mask.nii.gz -M
+ref_value=$(fslstats sub-02_pet_to_MNI.nii.gz -k cerebellum_mask.nii.gz -M)
+echo $ref_value
+
+#Step 6: Create SUVR Map
+fslmaths sub-02_pet_to_MNI.nii.gz -div $ref_value sub-02_SUVR_in_MNI.nii.gz
