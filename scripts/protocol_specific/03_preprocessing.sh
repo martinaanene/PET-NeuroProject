@@ -26,13 +26,13 @@ flirt -in pet/sub-02_pet.nii.gz \
 fsleyes anat/sub-02_T1w_brain.nii.gz pet/sub-02_pet_coreg.nii.gz -cm hot -a 50
 
 # Step 3: Normalisation to MNI Space
-MNI_TEMPLATE_BRAIN=$FSLDIR/data/standard/MNI152_T1_1mm_brain.nii.gz
 
 flirt -in anat/sub-02_T1w_brain.nii.gz \
-      -ref $MNI_TEMPLATE_BRAIN \
+      -ref $FSLDIR/data/standard/MNI152_T1_1mm.nii.gz \
       -omat anat/sub-02_T1w_to_MNI_linear.mat \
       -out anat/sub-02_T1w_to_MNI_linear.nii.gz
 
+      export OMP_NUM_THREADS=15
 fnirt --in=anat/sub-02_T1w_brain.nii.gz \
       --ref=$FSLDIR/data/standard/MNI152_T1_1mm.nii.gz \
       --aff=anat/sub-02_T1w_to_MNI_linear.mat \
@@ -42,7 +42,7 @@ fnirt --in=anat/sub-02_T1w_brain.nii.gz \
       --infwhm=8,4,2,2
 
 applywarp --in=pet/sub-02_pet.nii.gz \
-          --ref=$MNI_TEMPLATE_BRAIN \
+          --ref=$FSLDIR/data/standard/MNI152_T1_1mm.nii.gz \
           --warp=anat/sub-02_T1w_to_MNI_warp.nii.gz \
           --premat=pet/sub-02_pet_to_T1w.mat \
           --out=pet/sub-02_pet_to_MNI.nii.gz
