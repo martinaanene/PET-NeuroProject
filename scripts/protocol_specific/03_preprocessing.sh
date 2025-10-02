@@ -5,18 +5,18 @@
 # Step 1: Visual Reorientation
 ml fsl/6.0.7.8
 
-cd ~/Desktop/CAPSTONE/sub-02/anat/
+cd ~/Desktop/CAPSTONE/capstonebids/sub-02/anat/
 fslreorient2std sub-02_T1w.nii.gz
 
-cd ~/Desktop/CAPSTONE/sub-02/pet/
+cd ~/Desktop/CAPSTONE/capstonebids/sub-02/pet/
 fslreorient2std sub-02_pet.nii.gz
 
 # Step 2: Co-registration of PET and MRI
-cd ~/Desktop/CAPSTONE/sub-02/anat/
+cd ~/Desktop/CAPSTONE/capstonebids/sub-02/anat/
 bet sub-02_T1w.nii.gz sub-02_T1w_brain.nii.gz -R -f 0.2 -m
 fsleyes sub-02_T1w.nii.gz sub-02_T1w_brain.nii.gz -cm red
 
-cd ~/Desktop/CAPSTONE/sub-02/
+cd ~/Desktop/CAPSTONE/capstonebids/sub-02/
 flirt -in pet/sub-02_pet.nii.gz \
       -ref anat/sub-02_T1w_brain.nii.gz \
       -out pet/sub-02_pet_coreg.nii.gz \
