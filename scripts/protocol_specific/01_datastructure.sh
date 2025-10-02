@@ -14,7 +14,7 @@ mv AD02-20250925T163237Z-1-001.zip AD02_MR_DICOM-20250925T163714Z-1-001.zip ~/De
 cd ~/Desktop/CAPSTONE/
 unzip AD02_MR_DICOM-20250925T163714Z-1-001.zip
 unzip AD02-20250925T163237Z-1-001.zip
-rm AD02_MR_DICOM-20250925T163714Z-1-001.zip AD02-20250925T163237Z-1-001.zip
+
 
 # Step 4: Create BIDS directories
 mkdir -p capstonebids/sub-02/anat capstonebids/sub-02/pet
@@ -35,6 +35,8 @@ echo '{ "Name": "capstone_dataset", "BIDSVersion": "1.8.0" }' > dataset_descript
 tree
 
 # Step 8: Validate BIDS
+cd ..
 conda install conda-forge::deno -y
+conda init
 conda activate
 deno run -ERWN jsr:@bids/validator capstonebids/ --ignoreWarnings
