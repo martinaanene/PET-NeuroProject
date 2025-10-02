@@ -40,6 +40,7 @@ fnirt --in=anat/sub-02_T1w_brain.nii.gz \
       --warpres=10,10,10 \
       --subsamp=4,2,1,1 \
       --infwhm=8,4,2,2
+      --verbose
 
 applywarp --in=pet/sub-02_pet.nii.gz \
           --ref=$FSLDIR/data/standard/MNI152_T1_1mm.nii.gz \
