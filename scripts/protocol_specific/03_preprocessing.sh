@@ -39,7 +39,7 @@ fnirt --in=anat/sub-02_T1w_brain.nii.gz \
       --cout=anat/sub-02_T1w_to_MNI_warp.nii.gz \
       --warpres=10,10,10 \
       --subsamp=4,2,1,1 \
-      --infwhm=8,4,2,2
+      --infwhm=8,4,2,2 \
       --verbose
 
 applywarp --in=pet/sub-02_pet.nii.gz \
