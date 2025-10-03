@@ -63,7 +63,20 @@ native_segmentation_file="${subject}_samseg_rois.nii.gz"
 # ---------------------------------------------------------------------------------
 if [ ! -f "$native_segmentation_file" ]; then
     echo "--- Running SAMSEG to create native-space segmentations... ---"
-    run_samseg -i "$native_t1_image" -o "$PWD/samseg_output/${subject}" --threads 8
+
+    # Detect available CPUs and choose a safe number of threads
+    CPUS=$(nproc)
+    THREADS=$((CPUS / 2))
+    if [ $THREADS -lt 1 ]; then
+        THREADS=1
+    fi
+
+    echo "Detected $CPUS CPUs. Using $THREADS threads for SAMSEG."
+
+    run_samseg -i "$native_t1_image" \
+               -o "$PWD/samseg_output/${subject}" \
+               --threads $THREADS > samseg_log.txt 2>&1
+
     mri_convert "samseg_output/${subject}/seg.mgz" "$native_segmentation_file"
     echo "--- SAMSEG finished. ---"
 else
