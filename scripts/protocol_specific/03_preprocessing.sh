@@ -44,7 +44,7 @@ fnirt --in=anat/sub-02_T1w_brain.nii.gz \
       --verbose
 
 applywarp --in=pet/sub-02_pet.nii.gz \
-          --ref=$FSLDIR/data/standard/MNI152_T1_1mm.nii.gz \
+          --ref=$FSLDIR/data/standard/MNI152_T1_1mm_brain.nii.gz \
           --warp=anat/sub-02_T1w_to_MNI_warp.nii.gz \
           --premat=pet/sub-02_pet_to_T1w.mat \
           --out=pet/sub-02_pet_to_MNI.nii.gz
