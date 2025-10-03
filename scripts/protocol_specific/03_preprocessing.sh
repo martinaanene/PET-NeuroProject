@@ -33,6 +33,7 @@ flirt -in anat/sub-02_T1w_brain.nii.gz \
       -out anat/sub-02_T1w_to_MNI_linear.nii.gz
 
       export OMP_NUM_THREADS=15
+      
 fnirt --in=anat/sub-02_T1w_brain.nii.gz \
       --ref=$FSLDIR/data/standard/MNI152_T1_1mm_brain.nii.gz \
       --aff=anat/sub-02_T1w_to_MNI_linear.mat \
