@@ -19,7 +19,7 @@
 # --- 1. NAVIGATE TO THE SUBJECT'S DIRECTORY ---
 # ---------------------------------------------------------------------------------
 echo "Changing directory to the subject's folder..."
-cd ~/Desktop/capstone/capstone_bids/sub-02/
+cd ~/Desktop/CAPSTONE/capstonebids/sub-02/
 
 
 # --- 2. LOAD REQUIRED SOFTWARE MODULES ---
