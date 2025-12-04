@@ -30,6 +30,9 @@ echo "Extracting data for ${subject_id} from bulk archives..."
 
 # Extract MRI data
 if [ -f "$MRI_ZIP" ]; then
+    echo "DEBUG: Listing first 20 files in MRI zip to check structure:"
+    unzip -l "$MRI_ZIP" | head -n 20
+    
     unzip -n "$MRI_ZIP" "*AD${subject_id}*" -d ~/Desktop/CAPSTONE/
 else
     echo "WARNING: MRI bulk zip not found at $MRI_ZIP"
