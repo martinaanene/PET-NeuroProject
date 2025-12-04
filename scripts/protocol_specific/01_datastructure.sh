@@ -76,9 +76,9 @@ ls -F ~/Desktop/CAPSTONE/
 # AD02-20250925T163237Z-1-001.zip -> sub-02_pet (pet)
 
 # We will try to detect them by name.
-# Increased maxdepth to 2 in case the bulk zip extracts into a parent folder.
-anat_dir=$(find . -maxdepth 2 -type d -name "AD${subject_id}_MR_DICOM*" | head -n 1)
-pet_dir=$(find . -maxdepth 2 -type d -name "AD${subject_id}*" ! -name "*MR_DICOM*" | head -n 1)
+# Increased maxdepth to 5 because the zip structure is AD-100_MR/dicom/AD01... (3 levels deep)
+anat_dir=$(find . -maxdepth 5 -type d -name "AD${subject_id}_MR_DICOM*" | head -n 1)
+pet_dir=$(find . -maxdepth 5 -type d -name "AD${subject_id}*" ! -name "*MR_DICOM*" | head -n 1)
 
 if [ -d "$anat_dir" ]; then
     echo "Converting Anatomical: $anat_dir"
