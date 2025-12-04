@@ -8,8 +8,8 @@ end_sub=2
 
 # Log file
 log_file="batch_processing_log_TEST_$(date +%Y%m%d_%H%M%S).txt"
-# Master CSV file for results
-master_csv="all_subjects_results_TEST.csv"
+# Master CSV file for results (Absolute path to ensure sub-scripts find it)
+master_csv="$(pwd)/all_subjects_results_TEST.csv"
 
 # Determine the directory where this script is located
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
