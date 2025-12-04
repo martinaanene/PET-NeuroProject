@@ -1,4 +1,5 @@
-﻿import pandas as pd
+﻿#!/usr/bin/env python3
+import pandas as pd
 import matplotlib.pyplot as plt
 import scipy.stats as stats
 import numpy as np

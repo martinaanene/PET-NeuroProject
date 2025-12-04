@@ -41,6 +41,10 @@ for ((i=start_sub; i<=end_sub; i++)); do
     # Run Step 2: MRIQC
     echo "Running 02_mriqc.sh..." | tee -a "$log_file"
     ./02_mriqc.sh "$subject_id" >> "$log_file" 2>&1
+    if [ $? -ne 0 ]; then
+        echo "ERROR: 02_mriqc.sh failed for $subject_id. Check log." | tee -a "$log_file"
+        # Continue? MRIQC failure might not block preprocessing, but good to note.
+    fi
     
     # Run Step 3: Preprocessing
     echo "Running 03_preprocessing.sh..." | tee -a "$log_file"
@@ -54,6 +58,9 @@ for ((i=start_sub; i<=end_sub; i++)); do
     echo "Running 04_analysis.sh..." | tee -a "$log_file"
     # Pass the master CSV as the second argument
     ./04_analysis.sh "$subject_id" "$master_csv" >> "$log_file" 2>&1
+    if [ $? -ne 0 ]; then
+        echo "ERROR: 04_analysis.sh failed for $subject_id. Check log." | tee -a "$log_file"
+    fi
     
     echo "Finished Subject $subject_id at $(date)" | tee -a "$log_file"
     echo "" | tee -a "$log_file"

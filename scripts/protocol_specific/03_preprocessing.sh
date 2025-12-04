@@ -1,6 +1,7 @@
 #!/bin/bash
 # Preprocessing Script (Protocol-Specific Version)
 # Co-registration, brain extraction, normalization, smoothing
+set -e
 
 # Check for Subject ID argument
 if [ -z "$1" ]; then
@@ -15,7 +16,11 @@ subject="sub-${subject_id}"
 echo "Preprocessing Subject: ${subject}"
 
 # Step 1: Visual Reorientation
-ml fsl/6.0.7.8
+# Load FSL module. Try specific version first, then default.
+if ! ml fsl/6.0.7.8 2>/dev/null; then
+    echo "Specific fsl version not found, trying default..."
+    ml fsl
+fi
 
 cd ~/Desktop/CAPSTONE/capstonebids/${subject}/anat/
 fslreorient2std ${subject}_T1w.nii.gz ${subject}_T1w_reoriented.nii.gz

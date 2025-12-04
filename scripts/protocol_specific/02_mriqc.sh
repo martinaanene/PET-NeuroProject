@@ -1,5 +1,6 @@
 #!/bin/bash
 # MRIQC pipeline (protocol-specific version)
+set -e
 
 # Check for Subject ID argument
 if [ -z "$1" ]; then
@@ -15,7 +16,11 @@ mode=$1
 export BIDSDIR=~/Desktop/CAPSTONE/capstonebids/
 mkdir -p ~/Desktop/derivatives/
 export MRIQCDIR=~/Desktop/derivatives/
-ml mriqc/24.0.2
+# Load MRIQC module. Try specific version first, then default.
+if ! ml mriqc/24.0.2 2>/dev/null; then
+    echo "Specific mriqc version not found, trying default..."
+    ml mriqc
+fi
 
 if [ "$mode" == "group" ]; then
     echo "Running MRIQC Group Analysis..."

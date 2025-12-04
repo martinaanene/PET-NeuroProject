@@ -1,4 +1,5 @@
 ﻿#!/bin/bash
+set -e
 
 # =================================================================================
 # SCRIPT TO CALCULATE GLOBAL CORTICAL SUVR & CENTILOID (v7 - User-Specified)
@@ -35,8 +36,17 @@ cd ~/Desktop/CAPSTONE/capstonebids/${subject}/
 # --- 2. LOAD REQUIRED SOFTWARE MODULES ---
 # ---------------------------------------------------------------------------------
 echo "Loading software modules..."
-ml fsl/6.0.7.8
-ml freesurfer/7.3.2
+# Load FSL
+if ! ml fsl/6.0.7.8 2>/dev/null; then
+    echo "Specific fsl version not found, trying default..."
+    ml fsl
+fi
+
+# Load FreeSurfer
+if ! ml freesurfer/7.3.2 2>/dev/null; then
+    echo "Specific freesurfer version not found, trying default..."
+    ml freesurfer
+fi
 
 
 # --- 3. SETUP: PLEASE VERIFY THESE FILENAMES AND PATHS! ---
