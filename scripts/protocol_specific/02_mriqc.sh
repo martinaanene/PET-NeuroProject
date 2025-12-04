@@ -14,8 +14,9 @@ mode=$1
 
 # Set paths
 export BIDSDIR=~/Desktop/CAPSTONE/capstonebids/
-mkdir -p ~/Desktop/derivatives/
-export MRIQCDIR=~/Desktop/derivatives/
+# Use a specific mriqc folder inside derivatives to keep it clean and avoid BIDS nesting issues
+mkdir -p ~/Desktop/CAPSTONE/derivatives/mriqc
+export MRIQCDIR=~/Desktop/CAPSTONE/derivatives/mriqc
 # Load MRIQC module. Try specific version first, then default.
 if ! ml mriqc/24.0.2 2>/dev/null; then
     echo "Specific mriqc version not found, trying default..."
