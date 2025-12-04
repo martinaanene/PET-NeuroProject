@@ -121,16 +121,24 @@ fi
 # ---------------------------------------------------------------------------------
 echo "--- Calculating SUVR and converting to Centiloid... ---"
 
-# a. Calculate the mean value in the Reference Region (Whole Cerebellum)
+# a. Resample PET image to match Mask geometry (avoid dimension mismatch error)
+# The PET image is in FSL MNI space (182x218x182), but the Centiloid masks are likely SPM MNI (181x217x181).
+echo "Resampling PET image to match mask geometry..."
+resampled_pet="pet/${subject}_pet_resampled_to_mask.nii.gz"
+flirt -in "$mni_pet_image" -ref "$ref_mask" -applyxfm -usesqform -out "$resampled_pet"
+
+# b. Calculate the mean value in the Reference Region (Whole Cerebellum)
 echo "Calculating mean uptake in Reference Region (Whole Cerebellum)..."
-ref_mean=$(fslstats "$mni_pet_image" -k "$ref_mask" -M)
+# Use the resampled PET image
+ref_mean=$(fslstats "$resampled_pet" -k "$ref_mask" -M)
 echo "Reference Mean: $ref_mean"
 
-# b. Calculate the mean value in the Target Region (Global Cortex)
+# c. Calculate the mean value in the Target Region (Global Cortex)
 # Note: We calculate the mean uptake first, then divide by ref_mean to get SUVR.
 # Alternatively, we can create an SUVR image first. Let's calculate mean uptake directly.
 echo "Calculating mean uptake in Target Region (Global Cortex)..."
-target_mean=$(fslstats "$mni_pet_image" -k "$target_mask" -M)
+# Use the resampled PET image
+target_mean=$(fslstats "$resampled_pet" -k "$target_mask" -M)
 echo "Target Mean: $target_mean"
 
 # c. Calculate SUVR
