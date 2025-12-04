@@ -83,7 +83,9 @@ flirt -in pet/${subject}_pet.nii.gz \
       -ref anat/${subject}_T1w.nii.gz \
       -out pet/${subject}_pet_coreg.nii.gz \
       -omat pet/${subject}_pet_to_T1w.mat \
-      -dof 6
+      -dof 6 \
+      -cost normmi \
+      -searchrx -90 90 -searchry -90 90 -searchrz -90 90
 
 # fsleyes anat/${subject}_T1w_brain.nii.gz pet/${subject}_pet_coreg.nii.gz -cm hot -a 50 &
 
