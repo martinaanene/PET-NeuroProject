@@ -60,10 +60,6 @@ start_idx=$((start_frame - 1))
 num_frames=$((end_frame - start_frame + 1))
 
 # Extract the frames
-echo "DEBUG: Checking input file dimensions before fslroi:"
-ls -l ${subject}_pet.nii.gz
-fslhd ${subject}_pet.nii.gz | grep "dim[0-4]"
-
 fslroi ${subject}_pet.nii.gz ${subject}_pet_crop.nii.gz $start_idx $num_frames
 
 # Average the frames to create a static 3D image
