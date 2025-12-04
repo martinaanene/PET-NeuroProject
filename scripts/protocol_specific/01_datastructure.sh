@@ -55,6 +55,10 @@ if ! ml dcm2niix/v1.0.20240202 2>/dev/null; then
     ml dcm2niix
 fi
 
+# Debugging: List what was extracted
+echo "Contents of ~/Desktop/CAPSTONE after extraction:"
+ls -F ~/Desktop/CAPSTONE/
+
 # Find the unzipped directories. 
 # Assumption: The unzip creates directories starting with AD${subject_id}
 # We need to be careful about which folder is which.
@@ -74,14 +78,18 @@ if [ -d "$anat_dir" ]; then
     echo "Converting Anatomical: $anat_dir"
     dcm2niix -o "~/Desktop/CAPSTONE/capstonebids/${subject}/anat" -f "${subject}_T1w" -z y -ba y -v y "$anat_dir"
 else
-    echo "WARNING: Anatomical DICOM directory not found for ${subject_id}"
+    echo "ERROR: Anatomical DICOM directory not found for ${subject_id}"
+    echo "Expected pattern: AD${subject_id}_MR_DICOM*"
+    exit 1
 fi
 
 if [ -d "$pet_dir" ]; then
     echo "Converting PET: $pet_dir"
     dcm2niix -o "~/Desktop/CAPSTONE/capstonebids/${subject}/pet" -f "${subject}_pet" -z y -ba y -v y "$pet_dir"
 else
-    echo "WARNING: PET DICOM directory not found for ${subject_id}"
+    echo "ERROR: PET DICOM directory not found for ${subject_id}"
+    echo "Expected pattern: AD${subject_id}* (excluding MR_DICOM)"
+    exit 1
 fi
 
 
