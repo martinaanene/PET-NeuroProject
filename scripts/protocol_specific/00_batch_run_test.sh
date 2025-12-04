@@ -11,6 +11,9 @@ log_file="batch_processing_log_TEST_$(date +%Y%m%d_%H%M%S).txt"
 # Master CSV file for results
 master_csv="all_subjects_results_TEST.csv"
 
+# Determine the directory where this script is located
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
+
 # Remove existing master CSV to ensure a fresh start
 if [ -f "$master_csv" ]; then
     echo "Removing existing master CSV: $master_csv" | tee -a "$log_file"
@@ -30,7 +33,7 @@ for ((i=start_sub; i<=end_sub; i++)); do
     
     # Run Step 1: Data Structure
     echo "Running 01_datastructure.sh..." | tee -a "$log_file"
-    ./01_datastructure.sh "$subject_id" >> "$log_file" 2>&1
+    "${SCRIPT_DIR}/01_datastructure.sh" "$subject_id" >> "$log_file" 2>&1
     if [ $? -ne 0 ]; then
         echo "ERROR: 01_datastructure.sh failed for $subject_id. Check log." | tee -a "$log_file"
         # Decide whether to continue or skip to next subject. 
@@ -40,14 +43,14 @@ for ((i=start_sub; i<=end_sub; i++)); do
     
     # Run Step 2: MRIQC
     echo "Running 02_mriqc.sh..." | tee -a "$log_file"
-    ./02_mriqc.sh "$subject_id" >> "$log_file" 2>&1
+    "${SCRIPT_DIR}/02_mriqc.sh" "$subject_id" >> "$log_file" 2>&1
     if [ $? -ne 0 ]; then
         echo "ERROR: 02_mriqc.sh failed for $subject_id. Check log." | tee -a "$log_file"
     fi
     
     # Run Step 3: Preprocessing
     echo "Running 03_preprocessing.sh..." | tee -a "$log_file"
-    ./03_preprocessing.sh "$subject_id" >> "$log_file" 2>&1
+    "${SCRIPT_DIR}/03_preprocessing.sh" "$subject_id" >> "$log_file" 2>&1
     if [ $? -ne 0 ]; then
         echo "ERROR: 03_preprocessing.sh failed for $subject_id. Check log." | tee -a "$log_file"
         continue
@@ -56,7 +59,7 @@ for ((i=start_sub; i<=end_sub; i++)); do
     # Run Step 4: Analysis
     echo "Running 04_analysis.sh..." | tee -a "$log_file"
     # Pass the master CSV as the second argument
-    ./04_analysis.sh "$subject_id" "$master_csv" >> "$log_file" 2>&1
+    "${SCRIPT_DIR}/04_analysis.sh" "$subject_id" "$master_csv" >> "$log_file" 2>&1
     if [ $? -ne 0 ]; then
         echo "ERROR: 04_analysis.sh failed for $subject_id. Check log." | tee -a "$log_file"
     fi
@@ -70,6 +73,6 @@ echo "==================================================" | tee -a "$log_file"
 echo "Running MRIQC Group Analysis..." | tee -a "$log_file"
 echo "==================================================" | tee -a "$log_file"
 
-./02_mriqc.sh group >> "$log_file" 2>&1
+"${SCRIPT_DIR}/02_mriqc.sh" group >> "$log_file" 2>&1
 
 echo "TEST Batch Processing Complete. See $log_file for details."
