@@ -27,6 +27,9 @@ MRI_ZIP="$HOME/Downloads/AD-100_MR.zip"
 PET_ZIP="$HOME/Downloads/AD_PET_01-25.zip"
 
 echo "Extracting data for ${subject_id} from bulk archives..."
+echo "DEBUG: Checking Downloads folder content:"
+ls -F ~/Downloads/
+echo "DEBUG: Looking for MRI_ZIP at: $MRI_ZIP"
 
 # Extract MRI data
 if [ -f "$MRI_ZIP" ]; then
