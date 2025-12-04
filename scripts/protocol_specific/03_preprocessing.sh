@@ -80,7 +80,7 @@ bet ${subject}_T1w.nii.gz ${subject}_T1w_brain.nii.gz -R -f 0.2 -m
 
 cd ~/Desktop/CAPSTONE/capstonebids/${subject}/
 flirt -in pet/${subject}_pet.nii.gz \
-      -ref anat/${subject}_T1w_brain.nii.gz \
+      -ref anat/${subject}_T1w.nii.gz \
       -out pet/${subject}_pet_coreg.nii.gz \
       -omat pet/${subject}_pet_to_T1w.mat \
       -dof 6
