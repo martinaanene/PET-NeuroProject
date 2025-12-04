@@ -26,6 +26,51 @@ mkdir -p ~/Desktop/CAPSTONE
 MRI_ZIP="$HOME/Downloads/AD-100_MR.zip"
 PET_ZIP="$HOME/Downloads/AD_PET_01-25.zip"
 
+# Function to extract zip with fallback to Python
+extract_zip() {
+    local zip_file=$1
+    local pattern=$2
+    local output_dir=$3
+    local subject_str=$4
+
+    echo "Attempting to extract $zip_file with unzip..."
+    # Try standard unzip first
+    if unzip -n "$zip_file" "$pattern" -d "$output_dir"; then
+        echo "Unzip successful."
+        return 0
+    else
+        echo "WARNING: Standard unzip failed (possible zip bomb or format issue)."
+        echo "Attempting extraction with Python..."
+        
+        # Python fallback
+        # We filter files containing the subject string (e.g., "AD01")
+        python3 -c "
+import zipfile, sys, os
+zip_path = sys.argv[1]
+out_dir = sys.argv[2]
+subj_str = sys.argv[3]
+
+try:
+    with zipfile.ZipFile(zip_path, 'r') as z:
+        # Filter files matching the subject string
+        members = [m for m in z.namelist() if subj_str in m]
+        if not members:
+            print(f'No files found matching {subj_str}')
+            sys.exit(1)
+        
+        print(f'Found {len(members)} files for {subj_str}. Extracting...')
+        for m in members:
+            z.extract(m, out_dir)
+    print('Python extraction successful.')
+except Exception as e:
+    print(f'Python extraction failed: {e}')
+    sys.exit(1)
+" "$zip_file" "$output_dir" "$subject_str"
+        
+        return $?
+    fi
+}
+
 echo "Extracting data for ${subject_id} from bulk archives..."
 echo "DEBUG: Checking Downloads folder content:"
 ls -F ~/Downloads/
@@ -33,17 +78,17 @@ echo "DEBUG: Looking for MRI_ZIP at: $MRI_ZIP"
 
 # Extract MRI data
 if [ -f "$MRI_ZIP" ]; then
-    echo "DEBUG: Listing first 20 files in MRI zip to check structure:"
-    unzip -l "$MRI_ZIP" | head -n 20
-    
-    unzip -n "$MRI_ZIP" "*AD${subject_id}*" -d ~/Desktop/CAPSTONE/
+    # Use the new extraction function
+    # Pattern for unzip: *AD${subject_id}*
+    # String for Python: AD${subject_id}
+    extract_zip "$MRI_ZIP" "*AD${subject_id}*" ~/Desktop/CAPSTONE/ "AD${subject_id}"
 else
     echo "WARNING: MRI bulk zip not found at $MRI_ZIP"
 fi
 
 # Extract PET data
 if [ -f "$PET_ZIP" ]; then
-    unzip -n "$PET_ZIP" "*AD${subject_id}*" -d ~/Desktop/CAPSTONE/
+    extract_zip "$PET_ZIP" "*AD${subject_id}*" ~/Desktop/CAPSTONE/ "AD${subject_id}"
 else
     echo "WARNING: PET bulk zip not found at $PET_ZIP"
 fi
