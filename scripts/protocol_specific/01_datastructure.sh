@@ -82,7 +82,7 @@ pet_dir=$(find . -maxdepth 5 -type d -name "AD${subject_id}*" ! -name "*MR_DICOM
 
 if [ -d "$anat_dir" ]; then
     echo "Converting Anatomical: $anat_dir"
-    dcm2niix -o "~/Desktop/CAPSTONE/capstonebids/${subject}/anat" -f "${subject}_T1w" -z y -ba y -v y "$anat_dir"
+    dcm2niix -o "$HOME/Desktop/CAPSTONE/capstonebids/${subject}/anat" -f "${subject}_T1w" -z y -ba y -v y "$anat_dir"
 else
     echo "ERROR: Anatomical DICOM directory not found for ${subject_id}"
     echo "Expected pattern: AD${subject_id}_MR_DICOM*"
@@ -91,7 +91,7 @@ fi
 
 if [ -d "$pet_dir" ]; then
     echo "Converting PET: $pet_dir"
-    dcm2niix -o "~/Desktop/CAPSTONE/capstonebids/${subject}/pet" -f "${subject}_pet" -z y -ba y -v y "$pet_dir"
+    dcm2niix -o "$HOME/Desktop/CAPSTONE/capstonebids/${subject}/pet" -f "${subject}_pet" -z y -ba y -v y "$pet_dir"
 else
     echo "ERROR: PET DICOM directory not found for ${subject_id}"
     echo "Expected pattern: AD${subject_id}* (excluding MR_DICOM)"
