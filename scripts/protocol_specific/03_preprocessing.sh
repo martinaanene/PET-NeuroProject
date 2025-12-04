@@ -15,7 +15,7 @@ subject="sub-${subject_id}"
 
 echo "Preprocessing Subject: ${subject}"
 
-# Step 1: Visual Reorientation
+# Step 1: Frame Averaging and Visual Reorientation
 # Load FSL module. Try specific version first, then default.
 if ! ml fsl/6.0.7.8 2>/dev/null; then
     echo "Specific fsl version not found, trying default..."
@@ -27,8 +27,51 @@ fslreorient2std ${subject}_T1w.nii.gz ${subject}_T1w_reoriented.nii.gz
 mv ${subject}_T1w_reoriented.nii.gz ${subject}_T1w.nii.gz
 
 cd ~/Desktop/CAPSTONE/capstonebids/${subject}/pet/
-fslreorient2std ${subject}_pet.nii.gz ${subject}_pet_reoriented.nii.gz
+
+# --- NEW: Frame Averaging based on CSV ---
+# Path to the CSV file (assumed to be in the project root)
+FRAMING_CSV="$HOME/Desktop/PET-NeuroProject/framing_info.csv"
+
+if [ ! -f "$FRAMING_CSV" ]; then
+    echo "ERROR: Framing info CSV not found at $FRAMING_CSV"
+    exit 1
+fi
+
+# Find the row for the current subject (e.g., AD01)
+# CSV format: Subject,Total Frames,50-70 Frames
+# Example: AD01,10,3-6
+frame_info=$(grep "AD${subject_id}," "$FRAMING_CSV")
+
+if [ -z "$frame_info" ]; then
+    echo "ERROR: No framing info found for AD${subject_id} in $FRAMING_CSV"
+    exit 1
+fi
+
+# Extract the range (3rd column)
+range=$(echo "$frame_info" | cut -d',' -f3)
+start_frame=$(echo "$range" | cut -d'-' -f1)
+end_frame=$(echo "$range" | cut -d'-' -f2)
+
+echo "Subject AD${subject_id}: Averaging frames $start_frame to $end_frame (from CSV)"
+
+# Convert to 0-based indexing and calculate size
+# Assuming CSV is 1-based (standard for humans)
+start_idx=$((start_frame - 1))
+num_frames=$((end_frame - start_frame + 1))
+
+# Extract the frames
+fslroi ${subject}_pet.nii.gz ${subject}_pet_crop.nii.gz $start_idx $num_frames
+
+# Average the frames to create a static 3D image
+fslmaths ${subject}_pet_crop.nii.gz -Tmean ${subject}_pet_avg.nii.gz
+
+# Use the averaged image for reorientation and subsequent steps
+fslreorient2std ${subject}_pet_avg.nii.gz ${subject}_pet_reoriented.nii.gz
 mv ${subject}_pet_reoriented.nii.gz ${subject}_pet.nii.gz
+
+# Clean up intermediate files
+rm ${subject}_pet_crop.nii.gz ${subject}_pet_avg.nii.gz
+# -----------------------------------------
 
 # Step 2: Co-registration of PET and MRI
 cd ~/Desktop/CAPSTONE/capstonebids/${subject}/anat/
