@@ -14,9 +14,11 @@ mode=$1
 
 # Set paths
 export BIDSDIR=~/Desktop/CAPSTONE/capstonebids/
-# Use a specific mriqc folder inside derivatives to keep it clean and avoid BIDS nesting issues
-mkdir -p ~/Desktop/CAPSTONE/derivatives/mriqc
-export MRIQCDIR=~/Desktop/CAPSTONE/derivatives/mriqc
+# Move output completely outside of CAPSTONE to avoid any nesting detection errors
+mkdir -p ~/Desktop/MRIQC_OUTPUT
+mkdir -p ~/Desktop/MRIQC_WORK
+export MRIQCDIR=~/Desktop/MRIQC_OUTPUT
+export WORKDIR=~/Desktop/MRIQC_WORK
 # Load MRIQC module. Try specific version first, then default.
 if ! ml mriqc/24.0.2 2>/dev/null; then
     echo "Specific mriqc version not found, trying default..."
@@ -26,7 +28,7 @@ fi
 if [ "$mode" == "group" ]; then
     echo "Running MRIQC Group Analysis..."
     # Run group-level QC
-    mriqc $BIDSDIR $MRIQCDIR group
+    mriqc $BIDSDIR $MRIQCDIR group -w $WORKDIR
     echo "Group analysis complete. Check $MRIQCDIR for group reports."
     exit 0
 fi
@@ -56,7 +58,7 @@ cd ~/Desktop/CAPSTONE/capstonebids/${subject}/anat
 # Run participant-level QC
 # Note: MRIQC might need the full subject list or can run on one participant
 # If running on one participant:
-mriqc $BIDSDIR $MRIQCDIR participant --participant-label $subject_id
+mriqc $BIDSDIR $MRIQCDIR participant --participant-label $subject_id -w $WORKDIR
 
 # Step 3: View MRIQC Results
 # cd $MRIQCDIR
