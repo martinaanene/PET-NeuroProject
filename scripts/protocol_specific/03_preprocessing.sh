@@ -46,12 +46,19 @@ num_frames=$((end_frame - start_frame + 1))
 echo "Averaging frames $start_frame to $end_frame..."
 fslroi ${subject}_pet.nii.gz ${subject}_pet_crop.nii.gz $start_idx $num_frames
 fslmaths ${subject}_pet_crop.nii.gz -Tmean ${subject}_pet_avg.nii.gz
+# Reorient for consistency with standard space
+fslreorient2std ${subject}_pet_avg.nii.gz ${subject}_pet_avg_reoriented.nii.gz
+mv ${subject}_pet_avg_reoriented.nii.gz ${subject}_pet_avg.nii.gz
 # Unzip for SPM (SPM often prefers .nii)
 gunzip -f ${subject}_pet_avg.nii.gz
 
 # Prepare MRI
 cd ~/Desktop/CAPSTONE/capstonebids/${subject}/anat/
 cp ${subject}_T1w.nii.gz ${subject}_T1w_spm.nii.gz
+# Reorient the copy for consistency
+fslreorient2std ${subject}_T1w_spm.nii.gz ${subject}_T1w_spm_reoriented.nii.gz
+mv ${subject}_T1w_spm_reoriented.nii.gz ${subject}_T1w_spm.nii.gz
+
 gunzip -f ${subject}_T1w_spm.nii.gz
 
 # --- Step 2: Generate SPM Batch Script ---
@@ -68,6 +75,24 @@ cat > "$spm_script" <<EOF
 
 spm('defaults', 'FMRI');
 spm_jobman('initcfg');
+
+% --- Auto-Reorient: Reset Origin to Center of Image ---
+% Approximates manual AC-PC alignment by centering the origin
+files_to_reorient = {'$mri_file', '$pet_file'};
+for i = 1:numel(files_to_reorient)
+    fname = files_to_reorient{i};
+    v = spm_vol(fname);
+    M = v.mat;
+    % Calculate geometric center of volume in voxels
+    com = (v.dim(1:3)' + 1) / 2;
+    % We want this voxel coordinate to be (0,0,0) mm
+    % M_new * [com; 1] = [0; 0; 0; 1]
+    % [R T] * [com; 1] = 0  =>  R*com + T = 0  =>  T = -R*com
+    R = M(1:3, 1:3);
+    T_new = -R * com;
+    M_new = [R T_new; 0 0 0 1];
+    spm_get_space(fname, M_new);
+end
 
 matlabbatch = {};
 
