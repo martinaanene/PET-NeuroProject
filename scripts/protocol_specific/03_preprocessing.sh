@@ -88,6 +88,10 @@ flirt -in pet/${subject}_pet.nii.gz \
       -usesqform \
       -searchrx -180 180 -searchry -180 180 -searchrz -180 180
 
+# Generate a PNG snapshot to verify registration
+echo "Generating registration check snapshot..."
+slicer anat/${subject}_T1w.nii.gz pet/${subject}_pet_coreg.nii.gz -a ${subject}_reg_check.png
+
 # fsleyes anat/${subject}_T1w_brain.nii.gz pet/${subject}_pet_coreg.nii.gz -cm hot -a 50 &
 
 # Step 3: Normalisation to MNI Space
