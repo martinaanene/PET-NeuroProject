@@ -23,6 +23,14 @@ if ! ml fsl/6.0.7.8 2>/dev/null; then
     ml fsl
 fi
 
+# Load SPM12 (Confirmed version)
+if ! ml spm12/r7771 2>/dev/null; then
+    echo "Specific SPM12 module not found, trying default..."
+    ml spm12
+else
+    echo "Loaded SPM12/r7771 module."
+fi
+
 cd ~/Desktop/CAPSTONE/capstonebids/${subject}/pet/
 
 # Path to the CSV file
