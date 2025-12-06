@@ -75,8 +75,8 @@ if [ ! -d "$MASK_DIR" ]; then
 fi
 
 # Centiloid Masks
-ref_mask="${MASK_DIR}/voi_WhlCbl_1mm.nii"
-target_mask="${MASK_DIR}/voi_ctx_1mm.nii"
+ref_mask="${MASK_DIR}/voi_WhlCbl_2mm.nii"
+target_mask="${MASK_DIR}/voi_ctx_2mm.nii"
 
 # Input PET image (Smoothed MNI PET from preprocessing)
 mni_pet_image="pet/${subject}_pet_to_MNI_smoothed.nii.gz"
