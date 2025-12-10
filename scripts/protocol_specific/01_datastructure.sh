@@ -106,6 +106,12 @@ if ! ml dcm2niix/v1.0.20240202 2>/dev/null; then
     ml dcm2niix
 fi
 
+# Load FSL for merging split PET series
+if ! ml fsl/6.0.7.8 2>/dev/null; then
+    echo "Specific FSL version not found, trying default..."
+    ml fsl
+fi
+
 # Debugging: List what was extracted
 echo "Contents of ~/Desktop/CAPSTONE after extraction:"
 ls -F ~/Desktop/CAPSTONE/
