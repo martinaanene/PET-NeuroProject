@@ -44,6 +44,19 @@ start_idx=$((start_frame - 1))
 num_frames=$((end_frame - start_frame + 1))
 
 echo "Averaging frames $start_frame to $end_frame..."
+
+# Check total frames in the image
+total_frames=$(fslval ${subject}_pet.nii.gz dim4)
+echo "DEBUG: Image file: ${subject}_pet.nii.gz | Total Frames: $total_frames"
+echo "DEBUG: Requesting Start Index: $start_idx | Count: $num_frames"
+
+required_frames=$((start_idx + num_frames))
+if [ "$total_frames" -lt "$required_frames" ]; then
+    echo "ERROR: Image has only $total_frames frames, but configuration requires up to frame $end_frame (requiring $required_frames total frames)."
+    echo "Current configuration in framing_info.csv might be incorrect for this subject."
+    exit 1
+fi
+
 fslroi ${subject}_pet.nii.gz ${subject}_pet_crop.nii.gz $start_idx $num_frames
 fslmaths ${subject}_pet_crop.nii.gz -Tmean ${subject}_pet_avg.nii.gz
 # Reorient for consistency with standard space
