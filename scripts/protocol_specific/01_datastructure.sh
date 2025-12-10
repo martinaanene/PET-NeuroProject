@@ -121,9 +121,15 @@ ls -F ~/Desktop/CAPSTONE/
 # AD02-20250925T163237Z-1-001.zip -> sub-02_pet (pet)
 
 # We will try to detect them by name.
-# Increased maxdepth to 5 because the zip structure is AD-100_MR/dicom/AD01... (3 levels deep)
+# Prioritize finding directories ending in _PET_DICOM (seen in Sub-04/05)
+pet_dir=$(find . -maxdepth 5 -type d -name "AD${subject_id}*_PET_DICOM" | head -n 1)
+
+# Fallback if strict pattern not found
+if [ -z "$pet_dir" ]; then
+    pet_dir=$(find . -maxdepth 5 -type d -name "AD${subject_id}*" ! -name "*MR_DICOM*" | head -n 1)
+fi
+
 anat_dir=$(find . -maxdepth 5 -type d -name "AD${subject_id}_MR_DICOM*" | head -n 1)
-pet_dir=$(find . -maxdepth 5 -type d -name "AD${subject_id}*" ! -name "*MR_DICOM*" | head -n 1)
 
 if [ -d "$anat_dir" ]; then
     echo "Converting Anatomical: $anat_dir"
@@ -136,7 +142,53 @@ fi
 
 if [ -d "$pet_dir" ]; then
     echo "Converting PET: $pet_dir"
+    # Convert all series in the directory (handled automatically by dcm2niix if pointing to parent)
     dcm2niix -o "$HOME/Desktop/CAPSTONE/capstonebids/${subject}/pet" -f "${subject}_pet" -z y -ba y -v y "$pet_dir"
+    
+    # Check for split files (e.g., if multiple folders existed) and merge them
+    cd "$HOME/Desktop/CAPSTONE/capstonebids/${subject}/pet"
+    
+    # Store current IFS
+    SAVEIFS=$IFS
+    IFS=$(echo -en "\n\b")
+    
+    # List generated PET files (excluding .json)
+    # This relies on dcm2niix naming behavior. If multiple series, it appends suffixes.
+    files=($(ls ${subject}_pet*.nii.gz 2>/dev/null | sort))
+    
+    num_files=${#files[@]}
+    echo "Found $num_files PET NIfTI files."
+    
+    if [ "$num_files" -gt 1 ]; then
+        echo "Detected split PET series ($num_files files). Merging..."
+        # fslmerge -t concatenates in time
+        fslmerge -t "${subject}_pet_merged.nii.gz" "${files[@]}"
+        
+        # Verify merge success
+        if [ -f "${subject}_pet_merged.nii.gz" ]; then
+            echo "Merge successful. replacing original files."
+            # Remove partial files
+            rm "${files[@]}"
+            # Rename merged file to standard name
+            mv "${subject}_pet_merged.nii.gz" "${subject}_pet.nii.gz"
+            # Also need to handle JSONs? 
+            # Usually strict BIDS requires One JSON. We'll just keep the first one or leave as is.
+            # Ideally we merge JSONs but for this pipeline only the NIfTI matters for fslroi.
+            
+            # Clean up extra JSONs if they exist (keep the main one)
+            # This is a simplification.
+             rm ${subject}_pet_*.json 2>/dev/null || true
+        else
+            echo "ERROR: fslmerge failed."
+            exit 1
+        fi
+    fi
+    
+    # Restore IFS
+    IFS=$SAVEIFS
+    
+    # Go back to dataset root
+    cd ~/Desktop/CAPSTONE/
 else
     echo "ERROR: PET DICOM directory not found for ${subject_id}"
     echo "Expected pattern: AD${subject_id}* (excluding MR_DICOM)"
