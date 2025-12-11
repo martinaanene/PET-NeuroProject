@@ -3,24 +3,25 @@
 # Runs the full pipeline for subjects 01 to 25
 
 # Define the range of subjects
-start_sub=1
-end_sub=25
+# Default to 1-25 if not provided
+start_sub=${1:-1}
+end_sub=${2:-25}
 
 # Log file
-log_file="batch_processing_log_$(date +%Y%m%d_%H%M%S).txt"
+log_file="batch_processing_log_sub${start_sub}-${end_sub}_$(date +%Y%m%d_%H%M%S).txt"
 # Master CSV file for results (Absolute path to ensure sub-scripts find it)
 master_csv="$(pwd)/all_subjects_results.csv"
 
 # Determine the directory where this script is located
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
 
-# Remove existing master CSV to ensure a fresh start
-if [ -f "$master_csv" ]; then
+# Remove existing master CSV to ensure a fresh start ONLY IF starting from subject 1
+if [ "$start_sub" -eq 1 ] && [ -f "$master_csv" ]; then
     echo "Removing existing master CSV: $master_csv" | tee -a "$log_file"
     rm "$master_csv"
 fi
 
-echo "Starting Batch Processing at $(date)" | tee -a "$log_file"
+echo "Starting Batch Processing for subjects $start_sub to $end_sub at $(date)" | tee -a "$log_file"
 echo "Results will be saved to: $master_csv" | tee -a "$log_file"
 
 for ((i=start_sub; i<=end_sub; i++)); do
