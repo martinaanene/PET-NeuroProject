@@ -57,6 +57,15 @@ for ((i=start_sub; i<=end_sub; i++)); do
         echo "ERROR: 03_preprocessing.sh failed for $subject_id. Check log." | tee -a "$log_file"
         continue
     fi
+
+    # Run Visual QC (03b)
+    echo "Running 03b_visual_qc.sh..." | tee -a "$log_file"
+    "${SCRIPT_DIR}/03b_visual_qc.sh" "$subject_id" >> "$log_file" 2>&1
+    if [ $? -ne 0 ]; then
+        echo "ERROR: 03b_visual_qc.sh failed for $subject_id. Check log." | tee -a "$log_file"
+        # Non-blocking failure
+    fi
+
     
     # Run Step 4: Analysis
     echo "Running 04_analysis.sh..." | tee -a "$log_file"
@@ -76,5 +85,16 @@ echo "Running MRIQC Group Analysis..." | tee -a "$log_file"
 echo "==================================================" | tee -a "$log_file"
 
 "${SCRIPT_DIR}/02_mriqc.sh" group >> "$log_file" 2>&1
+
+echo "==================================================" | tee -a "$log_file"
+echo "Generating HTML QC Report..." | tee -a "$log_file"
+echo "==================================================" | tee -a "$log_file"
+
+if command -v python3 &> /dev/null; then
+    python3 "${SCRIPT_DIR}/06_generate_qc_report.py" >> "$log_file" 2>&1
+else
+    echo "WARNING: python3 not found, skipping report generation." | tee -a "$log_file"
+fi
+
 
 echo "Batch Processing Complete. See $log_file for details."

@@ -26,69 +26,34 @@ mkdir -p ~/Desktop/CAPSTONE
 MRI_ZIP="$HOME/Downloads/AD-100_MR.zip"
 PET_ZIP="$HOME/Downloads/AD_PET_01-25.zip"
 
-# Function to extract zip with fallback to Python
+# Function to extract zip (Standard unzip only)
 extract_zip() {
     local zip_file=$1
     local pattern=$2
     local output_dir=$3
-    local subject_str=$4
 
-    echo "Attempting to extract $zip_file with unzip..."
-    # Try standard unzip first
+    echo "Attempting to extract $zip_file..."
     if unzip -n "$zip_file" "$pattern" -d "$output_dir"; then
         echo "Unzip successful."
         return 0
     else
-        echo "WARNING: Standard unzip failed (possible zip bomb or format issue)."
-        echo "Attempting extraction with Python..."
-        
-        # Python fallback
-        # We filter files containing the subject string (e.g., "AD01")
-        python3 -c "
-import zipfile, sys, os
-zip_path = sys.argv[1]
-out_dir = sys.argv[2]
-subj_str = sys.argv[3]
-
-try:
-    with zipfile.ZipFile(zip_path, 'r') as z:
-        # Filter files matching the subject string
-        members = [m for m in z.namelist() if subj_str in m]
-        if not members:
-            print(f'No files found matching {subj_str}')
-            sys.exit(1)
-        
-        print(f'Found {len(members)} files for {subj_str}. Extracting...')
-        for m in members:
-            z.extract(m, out_dir)
-    print('Python extraction successful.')
-except Exception as e:
-    print(f'Python extraction failed: {e}')
-    sys.exit(1)
-" "$zip_file" "$output_dir" "$subject_str"
-        
-        return $?
+        echo "ERROR: Unzip failed for $zip_file"
+        return 1
     fi
 }
 
 echo "Extracting data for ${subject_id} from bulk archives..."
-echo "DEBUG: Checking Downloads folder content:"
-ls -F ~/Downloads/
-echo "DEBUG: Looking for MRI_ZIP at: $MRI_ZIP"
 
 # Extract MRI data
 if [ -f "$MRI_ZIP" ]; then
-    # Use the new extraction function
-    # Pattern for unzip: *AD${subject_id}*
-    # String for Python: AD${subject_id}
-    extract_zip "$MRI_ZIP" "*AD${subject_id}*" ~/Desktop/CAPSTONE/ "AD${subject_id}"
+    extract_zip "$MRI_ZIP" "*AD${subject_id}*" ~/Desktop/CAPSTONE/
 else
     echo "WARNING: MRI bulk zip not found at $MRI_ZIP"
 fi
 
 # Extract PET data
 if [ -f "$PET_ZIP" ]; then
-    extract_zip "$PET_ZIP" "*AD${subject_id}*" ~/Desktop/CAPSTONE/ "AD${subject_id}"
+    extract_zip "$PET_ZIP" "*AD${subject_id}*" ~/Desktop/CAPSTONE/
 else
     echo "WARNING: PET bulk zip not found at $PET_ZIP"
 fi
@@ -205,17 +170,36 @@ fi
 # Step 6: Create dataset_description.json (Only needs to be done once, but harmless to repeat)
 cd capstonebids/
 if [ ! -f dataset_description.json ]; then
-    echo '{ "Name": "capstone_dataset", "BIDSVersion": "1.8.0" }' > dataset_description.json
+    # BIDS Version is a declaration of which standard we are complying with.
+    # We are structuring this manually, so we declare the version we support.
+    BIDS_VERSION="1.9.0"
+    echo "{ \"Name\": \"capstone_dataset\", \"BIDSVersion\": \"$BIDS_VERSION\" }" > dataset_description.json
 fi
 
 # Step 7: View structure
 # tree # Optional, can be noisy in batch
 
-# Step 8: Validate BIDS
+# Step 8: Validate BIDS using Deno
 cd ..
-# Only run validator if requested or maybe once at the end? 
-# Keeping it for now but it might slow down batch processing.
-# conda install conda-forge::deno -y # Should be installed once globally
-# conda init
-# conda activate
-# deno run -ERWN jsr:@bids/validator capstonebids/ --ignoreWarnings
+if ! command -v deno &> /dev/null; then
+    echo "Deno not found. Installing via Conda..."
+    # Attempt to install Deno via conda if available in the environment
+    if command -v conda &> /dev/null; then
+        conda install -y conda-forge::deno
+    else
+        echo "ERROR: Conda not found. Cannot auto-install Deno."
+    fi
+fi
+
+if command -v deno &> /dev/null; then
+    echo "Running BIDS Validator (Latest)..."
+    # Run validator and capture output to a log file
+    deno run -A jsr:@bids/validator capstonebids/ --ignoreWarnings > "bids_validation_report_sub-${subject_id}.txt" 2>&1
+    
+    # Check if validation passed (exit code might be 0 even with warnings, so we just log it)
+    echo "BIDS Validation complete. See bids_validation_report_sub-${subject_id}.txt"
+    cat "bids_validation_report_sub-${subject_id}.txt"
+else
+    echo "WARNING: Deno still not found. Skipping BIDS validation."
+fi
+

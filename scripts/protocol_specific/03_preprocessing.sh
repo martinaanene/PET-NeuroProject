@@ -47,8 +47,7 @@ echo "Averaging frames $start_frame to $end_frame..."
 
 # Check total frames in the image
 total_frames=$(fslval ${subject}_pet.nii.gz dim4)
-echo "DEBUG: Image file: ${subject}_pet.nii.gz | Total Frames: $total_frames"
-echo "DEBUG: Requesting Start Index: $start_idx | Count: $num_frames"
+
 
 required_frames=$((start_idx + num_frames))
 if [ "$total_frames" -lt "$required_frames" ]; then
