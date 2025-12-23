@@ -96,11 +96,12 @@ ls -F ~/Desktop/CAPSTONE/
 
 # We will try to detect them by name.
 # Prioritize finding directories ending in _PET_DICOM (seen in Sub-04/05)
-pet_dir=$(find . -maxdepth 5 -type d -name "AD${subject_id}*_PET_DICOM" | head -n 1)
+# Prioritize finding directories ending in _PET_DICOM
+pet_dirs=$(find . -maxdepth 5 -type d -name "AD${subject_id}*_PET_DICOM")
 
 # Fallback if strict pattern not found
-if [ -z "$pet_dir" ]; then
-    pet_dir=$(find . -maxdepth 5 -type d -name "AD${subject_id}*" ! -name "*MR_DICOM*" | head -n 1)
+if [ -z "$pet_dirs" ]; then
+    pet_dirs=$(find . -maxdepth 5 -type d -name "AD${subject_id}*" ! -name "*MR_DICOM*" |head -n 1) # Keep head -n 1 for fallback as it is less specific
 fi
 
 anat_dir=$(find . -maxdepth 5 -type d -name "AD${subject_id}_MR_DICOM*" | head -n 1)
@@ -122,10 +123,19 @@ else
     exit 1
 fi
 
-if [ -d "$pet_dir" ]; then
-    echo "Converting PET: $pet_dir"
-    # Convert all series in the directory (handled automatically by dcm2niix if pointing to parent)
-    dcm2niix -o "$HOME/Desktop/CAPSTONE/capstonebids/${subject}/pet" -f "${subject}_pet" -z y -ba y -v y "$pet_dir"
+if [ -n "$pet_dirs" ]; then
+    echo "Found PET directories:"
+    echo "$pet_dirs"
+    
+    # Iterate over each detected directory and convert
+    # Use newline as separator
+    SAVEIFS=$IFS
+    IFS=$'\n'
+    for p_dir in $pet_dirs; do
+        echo "Converting PET from: $p_dir"
+        dcm2niix -o "$HOME/Desktop/CAPSTONE/capstonebids/${subject}/pet" -f "${subject}_pet" -z y -ba y -v y "$p_dir"
+    done
+    IFS=$SAVEIFS
     
     cd "$HOME/Desktop/CAPSTONE/capstonebids/${subject}/pet"
     
