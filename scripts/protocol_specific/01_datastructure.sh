@@ -218,34 +218,34 @@ fi
 # Step 7: View structure
 # tree # Optional, can be noisy in batch
 
-# Step 8: Validate BIDS using Deno
-cd ..
-if ! command -v deno &> /dev/null; then
-    echo "Deno not found. Installing via Conda..."
-    # Attempt to install Deno via conda if available in the environment
-    if command -v conda &> /dev/null; then
-        conda install -y conda-forge::deno
-    else
-        echo "ERROR: Conda not found. Cannot auto-install Deno."
-    fi
-fi
+# Step 8: Validate BIDS using Deno (SKIPPED as per user request)
+# cd ..
+# if ! command -v deno &> /dev/null; then
+#     echo "Deno not found. Installing via Conda..."
+#     # Attempt to install Deno via conda if available in the environment
+#     if command -v conda &> /dev/null; then
+#         conda install -y conda-forge::deno
+#     else
+#         echo "ERROR: Conda not found. Cannot auto-install Deno."
+#     fi
+# fi
 
-if command -v deno &> /dev/null; then
-    echo "Running BIDS Validator..."
-    # Run validator and capture output to a log file
-    # Run validator and capture output to a log file
-    if ! deno run -A jsr:@bids/validator capstonebids/ --ignoreWarnings > "bids_validation_report_sub-${subject_id}.txt" 2>&1; then
-        echo "ERROR: BIDS Validator failed! Output from bids_validation_report_sub-${subject_id}.txt:"
-        echo "---------------------------------------------------"
-        cat "bids_validation_report_sub-${subject_id}.txt"
-        echo "---------------------------------------------------"
-        exit 1
-    fi
-    
-    # Check if validation passed (exit code might be 0 even with warnings, so we just log it)
-    echo "BIDS Validation complete. See bids_validation_report_sub-${subject_id}.txt"
-    cat "bids_validation_report_sub-${subject_id}.txt"
-else
-    echo "WARNING: Deno still not found. Skipping BIDS validation."
-fi
+# if command -v deno &> /dev/null; then
+#     echo "Running BIDS Validator..."
+#     # Run validator and capture output to a log file
+#     # Run validator and capture output to a log file
+#     if ! deno run -A jsr:@bids/validator capstonebids/ --ignoreWarnings > "bids_validation_report_sub-${subject_id}.txt" 2>&1; then
+#         echo "ERROR: BIDS Validator failed! Output from bids_validation_report_sub-${subject_id}.txt:"
+#         echo "---------------------------------------------------"
+#         cat "bids_validation_report_sub-${subject_id}.txt"
+#         echo "---------------------------------------------------"
+#         exit 1
+#     fi
+#     
+#     # Check if validation passed (exit code might be 0 even with warnings, so we just log it)
+#     echo "BIDS Validation complete. See bids_validation_report_sub-${subject_id}.txt"
+#     cat "bids_validation_report_sub-${subject_id}.txt"
+# else
+#     echo "WARNING: Deno still not found. Skipping BIDS validation."
+# fi
 
