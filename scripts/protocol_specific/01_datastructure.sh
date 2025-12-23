@@ -10,6 +10,9 @@ if [ -z "$1" ]; then
     exit 1
 fi
 
+# Determine the directory where this script is located
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
+
 subject_id=$1
 subject="sub-${subject_id}"
 
