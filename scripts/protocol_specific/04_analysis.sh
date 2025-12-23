@@ -111,7 +111,7 @@ fi
 # This allows appending to an existing master file.
 if [ ! -f "$output_csv" ]; then
     echo "Creating new CSV file: $output_csv"
-    echo "subject_id,ref_region_mean,global_cortical_suvr,global_cortical_centiloid" > "$output_csv"
+    echo "subject_id,cerebellar_mean,global_cortical_mean,global_cortical_suvr,global_cortical_centiloid" > "$output_csv"
 else
     echo "Appending to existing CSV file: $output_csv"
 fi
@@ -150,7 +150,7 @@ centiloid_value=$(echo "scale=4; 100 * ($suvr - $CENTILOID_SUVR_ZERO) / ($CENTIL
 echo "Centiloid Value: $centiloid_value"
 
 # e. Append the final values to the CSV file
-echo "$subject,$ref_mean,$suvr,$centiloid_value" >> "$output_csv"
+echo "$subject,$ref_mean,$target_mean,$suvr,$centiloid_value" >> "$output_csv"
 
 
 echo ""
