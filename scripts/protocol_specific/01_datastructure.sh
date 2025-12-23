@@ -133,9 +133,13 @@ if [ -d "$pet_dir" ]; then
     SAVEIFS=$IFS
     IFS=$(echo -en "\n\b")
     
+    # Cleanup any stale merged files from previous failed runs to avoid confusion
+    rm "${subject}_pet_merged.nii.gz" "${subject}_pet_merged.json" 2>/dev/null || true
+    
     # Check for split files (e.g. _peta, _petb)
     # dcm2niix might name them sub-04_peta.nii.gz, sub-04_petb.nii.gz if it detects split series
-    files=($(ls ${subject}_pet*.nii.gz | grep -v "${subject}_pet.nii.gz" | sort))
+    # Explicitly exclude any file containing "merged" to be safe.
+    files=($(ls ${subject}_pet*.nii.gz | grep -v "${subject}_pet.nii.gz" | grep -v "merged" | sort))
     
     num_files=${#files[@]}
     echo "Found $num_files PET NIfTI parts (excluding main if exists)."
