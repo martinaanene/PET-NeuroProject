@@ -52,7 +52,26 @@ def merge_jsons(output_file, input_files):
         "ReconFilterSize": 0,
         "Units": "Bq/mL",
         "InstitutionName": "Unknown",
-        "Manufacturer": "Unknown"
+        "Manufacturer": "Unknown",
+        "InjectedRadioactivity": 0,
+        "InjectedRadioactivityUnits": "MBq",
+        "InjectedMass": 0,
+        "InjectedMassUnits": "ug",
+        "ScanStart": "00:00:00",
+        "InjectionStart": "00:00:00",
+        "AcquisitionMode": "unknown",
+        "ImageDecayCorrected": False,
+        "ImageDecayCorrectionTime": 0,
+        "ReconMethodName": "Unknown",
+        "ReconMethodParameterLabels": ["none"],
+        "ReconMethodParameterValues": [0],
+        "ReconMethodParameterUnits": ["none"],
+        "ReconFilterType": "Unknown",
+        "AttenuationCorrection": "Unknown",
+        "SpecificRadioactivity": 0,
+        "SpecificRadioactivityUnits": "Bq/g",
+        "ModeOfAdministration": "bolus",
+        "TimeZero": "00:00:00"
     }
     
     for key, value in defaults.items():
