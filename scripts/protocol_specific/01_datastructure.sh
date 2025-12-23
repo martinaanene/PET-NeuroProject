@@ -105,6 +105,14 @@ anat_dir=$(find . -maxdepth 5 -type d -name "AD${subject_id}_MR_DICOM*" | head -
 if [ -d "$anat_dir" ]; then
     echo "Converting Anatomical: $anat_dir"
     dcm2niix -o "$HOME/Desktop/CAPSTONE/capstonebids/${subject}/anat" -f "${subject}_T1w" -z y -ba y -v y "$anat_dir"
+    
+    # Fix potential 'a' suffix appended by dcm2niix if multiple series matched or it decided to append 'a'
+    # Check if sub-XX_T1wa.nii.gz exists but sub-XX_T1w.nii.gz does not
+    if [ -f "$HOME/Desktop/CAPSTONE/capstonebids/${subject}/anat/${subject}_T1wa.nii.gz" ] && [ ! -f "$HOME/Desktop/CAPSTONE/capstonebids/${subject}/anat/${subject}_T1w.nii.gz" ]; then
+        echo "Detected non-standard suffix 'a' on T1w file. Renaming to standard BIDS..."
+        mv "$HOME/Desktop/CAPSTONE/capstonebids/${subject}/anat/${subject}_T1wa.nii.gz" "$HOME/Desktop/CAPSTONE/capstonebids/${subject}/anat/${subject}_T1w.nii.gz"
+        mv "$HOME/Desktop/CAPSTONE/capstonebids/${subject}/anat/${subject}_T1wa.json" "$HOME/Desktop/CAPSTONE/capstonebids/${subject}/anat/${subject}_T1w.json"
+    fi
 else
     echo "ERROR: Anatomical DICOM directory not found for ${subject_id}"
     echo "Expected pattern: AD${subject_id}_MR_DICOM*"
@@ -116,21 +124,20 @@ if [ -d "$pet_dir" ]; then
     # Convert all series in the directory (handled automatically by dcm2niix if pointing to parent)
     dcm2niix -o "$HOME/Desktop/CAPSTONE/capstonebids/${subject}/pet" -f "${subject}_pet" -z y -ba y -v y "$pet_dir"
     
-    # Check for split files (e.g., if multiple folders existed) and merge them
     cd "$HOME/Desktop/CAPSTONE/capstonebids/${subject}/pet"
     
     # Store current IFS
     SAVEIFS=$IFS
     IFS=$(echo -en "\n\b")
     
-    # List generated PET files (excluding .json)
-    # This relies on dcm2niix naming behavior. If multiple series, it appends suffixes.
-    files=($(ls ${subject}_pet*.nii.gz 2>/dev/null | sort))
+    # Check for split files (e.g. _peta, _petb)
+    # dcm2niix might name them sub-04_peta.nii.gz, sub-04_petb.nii.gz if it detects split series
+    files=($(ls ${subject}_pet*.nii.gz | grep -v "${subject}_pet.nii.gz" | sort))
     
     num_files=${#files[@]}
-    echo "Found $num_files PET NIfTI files."
+    echo "Found $num_files PET NIfTI parts (excluding main if exists)."
     
-    if [ "$num_files" -gt 1 ]; then
+    if [ "$num_files" -gt 0 ]; then
         echo "Detected split PET series ($num_files files). Merging..."
         # fslmerge -t concatenates in time
         fslmerge -t "${subject}_pet_merged.nii.gz" "${files[@]}"
@@ -138,20 +145,45 @@ if [ -d "$pet_dir" ]; then
         # Verify merge success
         if [ -f "${subject}_pet_merged.nii.gz" ]; then
             echo "Merge successful. replacing original files."
-            # Remove partial files
-            rm "${files[@]}"
-            # Rename merged file to standard name
-            mv "${subject}_pet_merged.nii.gz" "${subject}_pet.nii.gz"
-            # Also need to handle JSONs? 
-            # Usually strict BIDS requires One JSON. We'll just keep the first one or leave as is.
-            # Ideally we merge JSONs but for this pipeline only the NIfTI matters for fslroi.
             
-            # Clean up extra JSONs if they exist (keep the main one)
-            # This is a simplification.
-             rm ${subject}_pet_*.json 2>/dev/null || true
+            # ---------------------------------------------------------
+            # NEW: Merge JSON metadata using Python script
+            # ---------------------------------------------------------
+            # Gather corresponding JSONs
+            json_files=()
+            for nifti in "${files[@]}"; do
+                json_files+=("${nifti%.nii.gz}.json")
+            done
+            
+            echo "Merging JSON metadata..."
+            if command -v python3 &> /dev/null; then
+                 python3 "${SCRIPT_DIR}/fix_bids_json.py" "${subject}_pet_merged.json" "${json_files[@]}"
+            else
+                 echo "WARNING: python3 not found. Cannot merge JSONs correctly. Using the first one."
+                 cp "${json_files[0]}" "${subject}_pet_merged.json"
+            fi
+            
+            # Remove partial files (NIfTI and JSON)
+            rm "${files[@]}"
+            rm "${json_files[@]}"
+            
+            # Rename merged files to standard name
+            mv "${subject}_pet_merged.nii.gz" "${subject}_pet.nii.gz"
+            mv "${subject}_pet_merged.json" "${subject}_pet.json"
+            
         else
             echo "ERROR: fslmerge failed."
             exit 1
+        fi
+    else
+        # Single file case: existing file is likely ${subject}_pet.nii.gz
+        # But we still need to fix the JSON (inject missing fields)
+        if [ -f "${subject}_pet.nii.gz" ]; then
+             echo "Single PET file detected. Fixing JSON metadata..."
+             if command -v python3 &> /dev/null; then
+                 # reformating in place (output = input)
+                 python3 "${SCRIPT_DIR}/fix_bids_json.py" "${subject}_pet.json" "${subject}_pet.json"
+             fi
         fi
     fi
     
