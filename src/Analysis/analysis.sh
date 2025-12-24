@@ -109,6 +109,9 @@ fi
 # ---------------------------------------------------------------------------------
 # Only create the file and header if it doesn't exist.
 # This allows appending to an existing master file.
+# Ensure directory exists if it's a path
+mkdir -p "$(dirname "$output_csv")"
+
 if [ ! -f "$output_csv" ]; then
     echo "Creating new CSV file: $output_csv"
     echo "subject_id,cerebellar_mean,global_cortical_mean,global_cortical_suvr,global_cortical_centiloid" > "$output_csv"

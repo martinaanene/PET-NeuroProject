@@ -16,6 +16,9 @@ log_file="batch_processing_log_sub${start_sub}-${end_sub}_$(date +%Y%m%d_%H%M%S)
 # Master CSV file for results (Absolute path to ensure sub-scripts find it)
 master_csv="${PROJECT_ROOT}/results/tables/all_subjects_results.csv"
 
+# Ensure the directory exists
+mkdir -p "$(dirname "$master_csv")"
+
 
 # Remove existing master CSV to ensure a fresh start ONLY IF starting from subject 1
 if [ "$start_sub" -eq 1 ] && [ -f "$master_csv" ]; then

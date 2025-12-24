@@ -68,7 +68,7 @@ fsleyes render --outfile "${QC_DIR}/qc_coreg.png" \
     --size 1200 400 \
     --scene ortho \
     "$T1" --overlayType volume --name "T1" \
-    "$AVG_PET" --overlayType volume --name "PET" --cmap hot --alpha 50
+    "$AVG_PET" --overlayType volume --name "PET" --cmap hot --alpha 50 || echo "WARNING: Coregistration snapshot failed"
 
 # 2. NORMALIZATION CHECK
 # Overlay MNI PET onto MNI Template
@@ -77,17 +77,14 @@ fsleyes render --outfile "${QC_DIR}/qc_norm.png" \
     --size 1200 400 \
     --scene ortho \
     "$MNI_TEMPLATE" --overlayType volume --name "MNI152" \
-    "$PET_MNI" --overlayType volume --name "PET_MNI" --cmap hot --alpha 50
+    "$PET_MNI" --overlayType volume --name "PET_MNI" --cmap hot --alpha 50 || echo "WARNING: Normalization snapshot failed"
 
 # 3. MASK ALIGNMENT CHECK
 # Overlay Cerebellum and Cortex Masks onto MNI PET
 echo "Snapshot 3/3: Mask Alignment..."
 # We render the PET as background, and masks as colored overlays
-fsleyes render --outfile "${QC_DIR}/qc_masks.png" \
-    --size 1200 400 \
-    --scene ortho \
     "$PET_MNI" --overlayType volume --name "PET_MNI" --cmap gray \
     "$MASK_CEREB" --overlayType volume --name "Cerebellum" --cmap Blue --alpha 40 \
-    "$MASK_CTX" --overlayType volume --name "Cortex" --cmap Red --alpha 40
+    "$MASK_CTX" --overlayType volume --name "Cortex" --cmap Red --alpha 40 || echo "WARNING: Mask alignment snapshot failed"
 
 echo "Visual QC Complete for $subject. Images saved to $QC_DIR"
