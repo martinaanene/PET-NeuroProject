@@ -83,6 +83,9 @@ fsleyes render --outfile "${QC_DIR}/qc_norm.png" \
 # Overlay Cerebellum and Cortex Masks onto MNI PET
 echo "Snapshot 3/3: Mask Alignment..."
 # We render the PET as background, and masks as colored overlays
+fsleyes render --outfile "${QC_DIR}/qc_masks.png" \
+    --size 1200 400 \
+    --scene ortho \
     "$PET_MNI" --overlayType volume --name "PET_MNI" --cmap gray \
     "$MASK_CEREB" --overlayType volume --name "Cerebellum" --cmap Blue --alpha 40 \
     "$MASK_CTX" --overlayType volume --name "Cortex" --cmap Red --alpha 40 || echo "WARNING: Mask alignment snapshot failed"
