@@ -30,7 +30,7 @@ echo "Analyzing Subject: ${subject}"
 # --- 1. NAVIGATE TO THE SUBJECT'S DIRECTORY ---
 # ---------------------------------------------------------------------------------
 echo "Changing directory to the subject's folder..."
-cd ~/Desktop/CAPSTONE/capstonebids/${subject}/
+cd ~/Desktop/pet_pipeline_output/capstonebids/${subject}/
 
 
 # --- 2. LOAD REQUIRED SOFTWARE MODULES ---
@@ -64,13 +64,13 @@ CENTILOID_SUVR_100=2.076
 # Script location: .../PET-NeuroProject/scripts/protocol_specific/
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
 PROJECT_ROOT="$(dirname "$(dirname "$SCRIPT_DIR")")"
-MASK_DIR="${PROJECT_ROOT}/Centiloid_Masks"
+MASK_DIR="${PROJECT_ROOT}/data/references/centiloid_masks"
 
 # Check if MASK_DIR exists
 if [ ! -d "$MASK_DIR" ]; then
     echo "WARNING: Mask directory not found at expected relative path:"
     echo "$MASK_DIR"
-    echo "Please ensure the 'Centiloid_Masks' folder is in the project root."
+    echo "Please ensure the 'data/references/centiloid_masks' folder is in the project root."
     exit 1
 fi
 

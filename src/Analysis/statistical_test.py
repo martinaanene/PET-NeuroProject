@@ -24,11 +24,15 @@ def main():
     # ---------------------------------------------------------------------------------
     print("--- Loading Calculated Results ---")
     
-    # Simple logic: Check argument or default to current directory
+    # Determine project root relative to this script (src/Analysis/statistical_test.py)
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    project_root = os.path.dirname(os.path.dirname(script_dir))
+    
+    # Simple logic: Check argument or default to standard location
     if len(sys.argv) > 1:
         results_file = sys.argv[1]
     else:
-        results_file = "all_subjects_results.csv"
+        results_file = os.path.join(project_root, "results", "tables", "all_subjects_results.csv")
 
     if not os.path.exists(results_file):
         print(f"ERROR: Results file not found: {results_file}")
@@ -56,7 +60,8 @@ def main():
     # ---------------------------------------------------------------------------------
     print("--- Loading Reference Data ---")
     
-    ref_file = "Centiloid_Project_Values.csv"
+    # ref_file = "Centiloid_Project_Values.csv"
+    ref_file = os.path.join(project_root, "data", "references", "centiloid_values.csv")
     
     if not os.path.exists(ref_file):
         print(f"ERROR: Reference file not found: {ref_file}")
@@ -156,7 +161,8 @@ def main():
     axes[1].grid(True, linestyle=':', alpha=0.6)
 
     plt.tight_layout()
-    output_plot = "correlation_plots.png"
+    # output_plot = "correlation_plots.png"
+    output_plot = os.path.join(project_root, "results", "reports", "correlation_plots.png")
     plt.savefig(output_plot)
     print(f"Plots saved to: {output_plot}")
 

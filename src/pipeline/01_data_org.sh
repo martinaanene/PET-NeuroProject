@@ -18,9 +18,9 @@ subject="sub-${subject_id}"
 
 echo "Processing Subject: ${subject}"
 
-# Step 1: Create CAPSTONE project directory
+# Step 1: Create project work directory
 # (Only create if it doesn't exist to avoid errors in batch mode)
-mkdir -p ~/Desktop/CAPSTONE
+mkdir -p ~/Desktop/pet_pipeline_output
 
 # Step 2: Extract data from bulk zip files
 # We look for the specific subject's data within the bulk archives in Downloads.
@@ -49,23 +49,24 @@ echo "Extracting data for ${subject_id} from bulk archives..."
 
 # Extract MRI data
 if [ -f "$MRI_ZIP" ]; then
-    extract_zip "$MRI_ZIP" "*AD${subject_id}*" ~/Desktop/CAPSTONE/
+    extract_zip "$MRI_ZIP" "*AD${subject_id}*" ~/Desktop/pet_pipeline_output/
 else
     echo "WARNING: MRI bulk zip not found at $MRI_ZIP"
 fi
 
 # Extract PET data
 if [ -f "$PET_ZIP" ]; then
-    extract_zip "$PET_ZIP" "*AD${subject_id}*" ~/Desktop/CAPSTONE/
+    extract_zip "$PET_ZIP" "*AD${subject_id}*" ~/Desktop/pet_pipeline_output/
 else
     echo "WARNING: PET bulk zip not found at $PET_ZIP"
 fi
 
 # Step 3: Prepare for processing
-cd ~/Desktop/CAPSTONE/
+cd ~/Desktop/pet_pipeline_output/
 
 # Step 4: Create BIDS directories
 mkdir -p "capstonebids/${subject}/anat" "capstonebids/${subject}/pet"
+
 
 # Step 5: Convert raw MRI data to NIFTI (dcm2niix)
 # Load dcm2niix module. Try specific version first, then default.
@@ -81,8 +82,9 @@ if ! ml fsl/6.0.7.8 2>/dev/null; then
 fi
 
 # Debugging: List what was extracted
-echo "Contents of ~/Desktop/CAPSTONE after extraction:"
-ls -F ~/Desktop/CAPSTONE/
+echo "Contents of ~/Desktop/pet_pipeline_output after extraction:"
+ls -F ~/Desktop/pet_pipeline_output/
+
 
 # Find the unzipped directories. 
 # Assumption: The unzip creates directories starting with AD${subject_id}
@@ -108,14 +110,14 @@ anat_dir=$(find . -maxdepth 5 -type d -name "AD${subject_id}_MR_DICOM*" | head -
 
 if [ -d "$anat_dir" ]; then
     echo "Converting Anatomical: $anat_dir"
-    dcm2niix -o "$HOME/Desktop/CAPSTONE/capstonebids/${subject}/anat" -f "${subject}_T1w" -z y -ba y -v y "$anat_dir"
+    dcm2niix -o "$HOME/Desktop/pet_pipeline_output/capstonebids/${subject}/anat" -f "${subject}_T1w" -z y -ba y -v y "$anat_dir"
     
     # Fix potential 'a' suffix appended by dcm2niix if multiple series matched or it decided to append 'a'
     # Check if sub-XX_T1wa.nii.gz exists but sub-XX_T1w.nii.gz does not
-    if [ -f "$HOME/Desktop/CAPSTONE/capstonebids/${subject}/anat/${subject}_T1wa.nii.gz" ] && [ ! -f "$HOME/Desktop/CAPSTONE/capstonebids/${subject}/anat/${subject}_T1w.nii.gz" ]; then
+    if [ -f "$HOME/Desktop/pet_pipeline_output/capstonebids/${subject}/anat/${subject}_T1wa.nii.gz" ] && [ ! -f "$HOME/Desktop/pet_pipeline_output/capstonebids/${subject}/anat/${subject}_T1w.nii.gz" ]; then
         echo "Detected non-standard suffix 'a' on T1w file. Renaming to standard BIDS..."
-        mv "$HOME/Desktop/CAPSTONE/capstonebids/${subject}/anat/${subject}_T1wa.nii.gz" "$HOME/Desktop/CAPSTONE/capstonebids/${subject}/anat/${subject}_T1w.nii.gz"
-        mv "$HOME/Desktop/CAPSTONE/capstonebids/${subject}/anat/${subject}_T1wa.json" "$HOME/Desktop/CAPSTONE/capstonebids/${subject}/anat/${subject}_T1w.json"
+        mv "$HOME/Desktop/pet_pipeline_output/capstonebids/${subject}/anat/${subject}_T1wa.nii.gz" "$HOME/Desktop/pet_pipeline_output/capstonebids/${subject}/anat/${subject}_T1w.nii.gz"
+        mv "$HOME/Desktop/pet_pipeline_output/capstonebids/${subject}/anat/${subject}_T1wa.json" "$HOME/Desktop/pet_pipeline_output/capstonebids/${subject}/anat/${subject}_T1w.json"
     fi
 else
     echo "ERROR: Anatomical DICOM directory not found for ${subject_id}"
@@ -133,11 +135,11 @@ if [ -n "$pet_dirs" ]; then
     IFS=$'\n'
     for p_dir in $pet_dirs; do
         echo "Converting PET from: $p_dir"
-        dcm2niix -o "$HOME/Desktop/CAPSTONE/capstonebids/${subject}/pet" -f "${subject}_pet" -z y -ba y -v y "$p_dir"
+        dcm2niix -o "$HOME/Desktop/pet_pipeline_output/capstonebids/${subject}/pet" -f "${subject}_pet" -z y -ba y -v y "$p_dir"
     done
     IFS=$SAVEIFS
     
-    cd "$HOME/Desktop/CAPSTONE/capstonebids/${subject}/pet"
+    cd "$HOME/Desktop/pet_pipeline_output/capstonebids/${subject}/pet"
     
     # Store current IFS
     SAVEIFS=$IFS
@@ -208,7 +210,7 @@ if [ -n "$pet_dirs" ]; then
     IFS=$SAVEIFS
     
     # Go back to dataset root
-    cd ~/Desktop/CAPSTONE/
+    cd ~/Desktop/pet_pipeline_output/
 else
     echo "ERROR: PET DICOM directory not found for ${subject_id}"
     echo "Expected pattern: AD${subject_id}* (excluding MR_DICOM)"

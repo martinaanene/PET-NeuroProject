@@ -7,13 +7,15 @@
 start_sub=${1:-1}
 end_sub=${2:-25}
 
+# Determine the directory where this script is located
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
+PROJECT_ROOT="$(dirname "$(dirname "$SCRIPT_DIR")")"
+
 # Log file
 log_file="batch_processing_log_sub${start_sub}-${end_sub}_$(date +%Y%m%d_%H%M%S).txt"
 # Master CSV file for results (Absolute path to ensure sub-scripts find it)
-master_csv="$(pwd)/all_subjects_results.csv"
+master_csv="${PROJECT_ROOT}/results/tables/all_subjects_results.csv"
 
-# Determine the directory where this script is located
-SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
 
 # Remove existing master CSV to ensure a fresh start ONLY IF starting from subject 1
 if [ "$start_sub" -eq 1 ] && [ -f "$master_csv" ]; then
@@ -32,11 +34,11 @@ for ((i=start_sub; i<=end_sub; i++)); do
     echo "Processing Subject ID: $subject_id" | tee -a "$log_file"
     echo "==================================================" | tee -a "$log_file"
     
-    # Run Step 1: Data Structure
-    echo "Running 01_datastructure.sh..." | tee -a "$log_file"
-    "${SCRIPT_DIR}/01_datastructure.sh" "$subject_id" >> "$log_file" 2>&1
+    # Run Step 1: Data Organization (01_data_org.sh)
+    echo "Running 01_data_org.sh..." | tee -a "$log_file"
+    "${SCRIPT_DIR}/01_data_org.sh" "$subject_id" >> "$log_file" 2>&1
     if [ $? -ne 0 ]; then
-        echo "ERROR: 01_datastructure.sh failed for $subject_id. Check log." | tee -a "$log_file"
+        echo "ERROR: 01_data_org.sh failed for $subject_id. Check log." | tee -a "$log_file"
         # Decide whether to continue or skip to next subject. 
         # Usually if data structure fails, the rest will fail.
         continue
@@ -58,21 +60,21 @@ for ((i=start_sub; i<=end_sub; i++)); do
         continue
     fi
 
-    # Run Visual QC (03b)
-    echo "Running 03b_visual_qc.sh..." | tee -a "$log_file"
-    "${SCRIPT_DIR}/03b_visual_qc.sh" "$subject_id" >> "$log_file" 2>&1
+    # Run Visual QC (visual_qc.sh)
+    echo "Running visual_qc.sh..." | tee -a "$log_file"
+    "${SCRIPT_DIR}/../qc/visual_qc.sh" "$subject_id" >> "$log_file" 2>&1
     if [ $? -ne 0 ]; then
-        echo "ERROR: 03b_visual_qc.sh failed for $subject_id. Check log." | tee -a "$log_file"
+        echo "ERROR: visual_qc.sh failed for $subject_id. Check log." | tee -a "$log_file"
         # Non-blocking failure
     fi
 
     
-    # Run Step 4: Analysis
-    echo "Running 04_analysis.sh..." | tee -a "$log_file"
+    # Run Step 4: Analysis (analysis.sh)
+    echo "Running analysis.sh..." | tee -a "$log_file"
     # Pass the master CSV as the second argument
-    "${SCRIPT_DIR}/04_analysis.sh" "$subject_id" "$master_csv" >> "$log_file" 2>&1
+    "${SCRIPT_DIR}/../Analysis/analysis.sh" "$subject_id" "$master_csv" >> "$log_file" 2>&1
     if [ $? -ne 0 ]; then
-        echo "ERROR: 04_analysis.sh failed for $subject_id. Check log." | tee -a "$log_file"
+        echo "ERROR: analysis.sh failed for $subject_id. Check log." | tee -a "$log_file"
     fi
     
     echo "Finished Subject $subject_id at $(date)" | tee -a "$log_file"
@@ -91,7 +93,7 @@ echo "Generating HTML QC Report..." | tee -a "$log_file"
 echo "==================================================" | tee -a "$log_file"
 
 if command -v python3 &> /dev/null; then
-    python3 "${SCRIPT_DIR}/06_generate_qc_report.py" >> "$log_file" 2>&1
+    python3 "${SCRIPT_DIR}/../qc/generate_report.py" >> "$log_file" 2>&1
 else
     echo "WARNING: python3 not found, skipping report generation." | tee -a "$log_file"
 fi

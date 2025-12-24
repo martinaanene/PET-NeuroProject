@@ -15,7 +15,7 @@ subject="sub-${subject_id}"
 echo "Generatng Visual QC for Subject: ${subject}"
 
 # Define Paths
-BASE_DIR=~/Desktop/CAPSTONE
+BASE_DIR=~/Desktop/pet_pipeline_output
 SUB_DIR="${BASE_DIR}/capstonebids/${subject}"
 ANAT_DIR="${SUB_DIR}/anat"
 PET_DIR="${SUB_DIR}/pet"
@@ -39,11 +39,10 @@ AVG_PET="${PET_DIR}/${subject}_pet_avg.nii"      # Averaged Raw PET (before MNI)
 # Standard MNI Template (FSL standard)
 MNI_TEMPLATE="${FSLDIR}/data/standard/MNI152_T1_2mm_brain.nii.gz"
 
-# Project Masks (Relative to script location for robustness, but here hardcoded for simplicity as per 04_analysis.sh)
-# Logic: We need to find the masks. 
-# Getting absolute path from script location would be best, but we'll assume the standard location.
-PROJECT_ROOT=~/Desktop/PET-NeuroProject
-MASK_DIR="${PROJECT_ROOT}/Centiloid_Masks"
+# Project Masks (Relative to script location for robustness)
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
+PROJECT_ROOT="$(dirname "$(dirname "$SCRIPT_DIR")")"
+MASK_DIR="${PROJECT_ROOT}/data/references/centiloid_masks"
 MASK_CEREB="${MASK_DIR}/voi_WhlCbl_2mm.nii"
 MASK_CTX="${MASK_DIR}/voi_ctx_2mm.nii"
 
