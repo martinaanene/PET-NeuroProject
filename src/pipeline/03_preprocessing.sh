@@ -35,7 +35,7 @@ fi
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
 PROJECT_ROOT="$(dirname "$(dirname "$SCRIPT_DIR")")"
 
-cd ~/Desktop/pet_pipeline_output/capstonebids/${subject}/pet/
+cd ~/Desktop/derivatives/data/${subject}/pet/
 
 # Path to the CSV file
 FRAMING_CSV="${PROJECT_ROOT}/data/references/framing_info.csv"
@@ -69,7 +69,7 @@ mv ${subject}_pet_avg_reoriented.nii.gz ${subject}_pet_avg.nii.gz
 gunzip -f ${subject}_pet_avg.nii.gz
 
 # Prepare MRI
-cd ~/Desktop/pet_pipeline_output/capstonebids/${subject}/anat/
+cd ~/Desktop/derivatives/data/${subject}/anat/
 cp ${subject}_T1w.nii.gz ${subject}_T1w_spm.nii.gz
 # Reorient the copy for consistency
 fslreorient2std ${subject}_T1w_spm.nii.gz ${subject}_T1w_spm_reoriented.nii.gz
@@ -78,7 +78,7 @@ mv ${subject}_T1w_spm_reoriented.nii.gz ${subject}_T1w_spm.nii.gz
 gunzip -f ${subject}_T1w_spm.nii.gz
 
 # --- Step 2: Generate SPM Batch Script ---
-cd ~/Desktop/pet_pipeline_output/capstonebids/${subject}/
+cd ~/Desktop/derivatives/data/${subject}/
 
 # Define paths
 mri_file="$(pwd)/anat/${subject}_T1w_spm.nii"

@@ -5,7 +5,7 @@ from datetime import datetime
 
 def generate_report():
     # Define paths
-    base_dir = os.path.expanduser("~/Desktop/pet_pipeline_output")
+    base_dir = os.path.expanduser("~/Desktop/derivatives")
     qc_dir = os.path.join(base_dir, "QC")
     output_report = os.path.join(qc_dir, "index.html")
     

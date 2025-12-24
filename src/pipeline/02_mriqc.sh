@@ -13,12 +13,13 @@ fi
 mode=$1
 
 # Set paths
-export BIDSDIR=~/Desktop/CAPSTONE/capstonebids/
+# Set paths
+export BIDSDIR=~/Desktop/derivatives/data/
 # Move output completely outside of CAPSTONE to avoid any nesting detection errors
-mkdir -p ~/Desktop/MRIQC_OUTPUT
-mkdir -p ~/Desktop/MRIQC_WORK
-export MRIQCDIR=~/Desktop/MRIQC_OUTPUT
-export WORKDIR=~/Desktop/MRIQC_WORK
+mkdir -p ~/Desktop/derivatives/mriqc
+mkdir -p ~/Desktop/derivatives/temp/mriqc_work
+export MRIQCDIR=~/Desktop/derivatives/mriqc
+export WORKDIR=~/Desktop/derivatives/temp/mriqc_work
 # Load MRIQC module. Try specific version first, then default.
 if ! ml mriqc/24.0.2 2>/dev/null; then
     echo "Specific mriqc version not found, trying default..."
@@ -43,7 +44,7 @@ echo "Running MRIQC for Subject: ${subject}"
 ml fsl/6.0.7.8
 
 # Navigate to anatomical folder
-cd ~/Desktop/CAPSTONE/capstonebids/${subject}/anat
+cd ~/Desktop/derivatives/data/${subject}/anat
 
 # Open the T1w MRI image in FSLeyes
 # fsleyes ${subject}_T1w.nii.gz & # Run in background or skip for batch

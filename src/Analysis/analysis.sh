@@ -30,7 +30,7 @@ echo "Analyzing Subject: ${subject}"
 # --- 1. NAVIGATE TO THE SUBJECT'S DIRECTORY ---
 # ---------------------------------------------------------------------------------
 echo "Changing directory to the subject's folder..."
-cd ~/Desktop/pet_pipeline_output/capstonebids/${subject}/
+cd ~/Desktop/derivatives/data/${subject}/
 
 
 # --- 2. LOAD REQUIRED SOFTWARE MODULES ---

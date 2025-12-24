@@ -15,8 +15,8 @@ subject="sub-${subject_id}"
 echo "Generatng Visual QC for Subject: ${subject}"
 
 # Define Paths
-BASE_DIR=~/Desktop/pet_pipeline_output
-SUB_DIR="${BASE_DIR}/capstonebids/${subject}"
+BASE_DIR=~/Desktop/derivatives
+SUB_DIR="${BASE_DIR}/data/${subject}"
 ANAT_DIR="${SUB_DIR}/anat"
 PET_DIR="${SUB_DIR}/pet"
 QC_DIR="${BASE_DIR}/QC/${subject}"
