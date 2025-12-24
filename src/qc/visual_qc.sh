@@ -32,7 +32,7 @@ if ! command -v fsleyes &> /dev/null; then
 fi
 
 # Define Image Paths
-T1="${ANAT_DIR}/${subject}_T1w_spm.nii"          # Reoriented MRI
+T1="${ANAT_DIR}/${subject}_T1w.reoriented.nii"          # Reoriented MRI
 PET_MNI="${PET_DIR}/${subject}_pet_to_MNI_smoothed.nii.gz" # Final MNI PET
 AVG_PET="${PET_DIR}/${subject}_pet_avg.nii"      # Averaged Raw PET (before MNI)
 

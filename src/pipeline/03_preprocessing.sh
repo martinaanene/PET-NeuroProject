@@ -69,19 +69,26 @@ mv ${subject}_pet_avg_reoriented.nii.gz ${subject}_pet_avg.nii.gz
 gunzip -f ${subject}_pet_avg.nii.gz
 
 # Prepare MRI
+# Prepare MRI
 cd ~/Desktop/derivatives/data/${subject}/anat/
-cp ${subject}_T1w.nii.gz ${subject}_T1w_spm.nii.gz
-# Reorient the copy for consistency
-fslreorient2std ${subject}_T1w_spm.nii.gz ${subject}_T1w_spm_reoriented.nii.gz
-mv ${subject}_T1w_spm_reoriented.nii.gz ${subject}_T1w_spm.nii.gz
+cp ${subject}_T1w.nii.gz ${subject}_T1w_preproc.nii.gz
 
-gunzip -f ${subject}_T1w_spm.nii.gz
+# Reorient the copy for consistency
+# Yields T1w_preproc.reorient.nii.gz
+fslreorient2std ${subject}_T1w_preproc.nii.gz ${subject}_T1w_preproc.reorient.nii.gz
+
+# Rename to final T1w.reoriented.nii.gz
+mv ${subject}_T1w_preproc.reorient.nii.gz ${subject}_T1w.reoriented.nii.gz
+
+# Prepare for SPM (requires .nii)
+gunzip -f ${subject}_T1w.reoriented.nii.gz
 
 # --- Step 2: Generate SPM Batch Script ---
 cd ~/Desktop/derivatives/data/${subject}/
 
 # Define paths
-mri_file="$(pwd)/anat/${subject}_T1w_spm.nii"
+# Define paths
+mri_file="$(pwd)/anat/${subject}_T1w.reoriented.nii"
 pet_file="$(pwd)/pet/${subject}_pet_avg.nii"
 spm_script="spm_preprocessing_job.m"
 
