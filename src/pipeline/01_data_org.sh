@@ -119,6 +119,10 @@ if [ -d "$anat_dir" ]; then
         mv "$HOME/Desktop/derivatives/data/${subject}/anat/${subject}_T1wa.nii.gz" "$HOME/Desktop/derivatives/data/${subject}/anat/${subject}_T1w.nii.gz"
         mv "$HOME/Desktop/derivatives/data/${subject}/anat/${subject}_T1wa.json" "$HOME/Desktop/derivatives/data/${subject}/anat/${subject}_T1w.json"
     fi
+    
+    # Cleanup Anatomical DICOMs to save space
+    echo "Cleaning up Anatomical DICOMs: $anat_dir"
+    rm -rf "$anat_dir"
 else
     echo "ERROR: Anatomical DICOM directory not found for ${subject_id}"
     echo "Expected pattern: AD${subject_id}_MR_DICOM*"
@@ -137,6 +141,11 @@ if [ -n "$pet_dirs" ]; then
     for p_dir in $pet_dirs; do
         echo "Converting PET from: $p_dir (Part $i)"
         dcm2niix -o "$HOME/Desktop/derivatives/data/${subject}/pet" -f "${subject}_pet_part${i}" -z y -ba y -v y "$p_dir"
+        
+        # Cleanup PET DICOMs to save space
+        echo "Cleaning up PET DICOMs: $p_dir"
+        rm -rf "$p_dir"
+        
         i=$((i+1))
     done
     IFS=$SAVEIFS
