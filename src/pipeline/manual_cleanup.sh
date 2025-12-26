@@ -34,11 +34,16 @@ for i in $(seq -f "%02g" $start_sub $end_sub); do
     rm -f "$base_dir/pet/${subject}_pet_avg.nii.gz"
     rm -f "$base_dir/anat/${subject}_T1w_preproc.nii.gz"
     
-    # 4. Large Uncompressed Inputs for QC (Only if they exist)
-    # Assuming QC is already done for 1-24. 
-    # Even if not, clearing space is priority right now.
-    rm -f "$base_dir/pet/${subject}_pet_avg.nii"
-    rm -f "$base_dir/anat/${subject}_T1w.reoriented.nii"
+    # 4. Large Uncompressed Inputs for QC
+    # CHECK: Only delete these if the QC snapshots already exist!
+    qc_dir="$HOME/Desktop/derivatives/QC/$subject"
+    if [ -f "$qc_dir/qc_coreg.png" ] && [ -f "$qc_dir/qc_norm.png" ]; then
+        echo "QC snapshots found. Removing QC input NIfTIs..."
+        rm -f "$base_dir/pet/${subject}_pet_avg.nii"
+        rm -f "$base_dir/anat/${subject}_T1w.reoriented.nii"
+    else
+        echo "WARNING: QC snapshots NOT found for $subject. Keeping QC input NIfTIs."
+    fi
     
     # 5. Resampled PET from Analysis step (can be regenerated easily)
     rm -f "$base_dir/pet/${subject}_pet_resampled_to_mask.nii.gz"
