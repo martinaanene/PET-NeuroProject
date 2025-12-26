@@ -73,6 +73,12 @@ for ((i=start_sub; i<=end_sub; i++)); do
         # Non-blocking failure
     fi
 
+    # Post-QC Cleanup (to save space but allow QC generation)
+    subject="sub-${subject_id}"
+    echo "Cleaning up QC input files for $subject..." | tee -a "$log_file"
+    rm -f "$HOME/Desktop/derivatives/data/${subject}/pet/${subject}_pet_avg.nii"
+    rm -f "$HOME/Desktop/derivatives/data/${subject}/anat/${subject}_T1w.reoriented.nii"
+
     
     # Run Step 4: Analysis (analysis.sh)
     echo "Running analysis.sh..." | tee -a "$log_file"
