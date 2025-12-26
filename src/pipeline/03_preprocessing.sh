@@ -202,6 +202,22 @@ fi
 if [ -f "pet/sw${subject}_pet_avg.nii" ]; then
     gzip -c "pet/sw${subject}_pet_avg.nii" > "pet/${subject}_pet_to_MNI_smoothed.nii.gz"
     echo "SPM Processing Complete. Output: pet/${subject}_pet_to_MNI_smoothed.nii.gz"
+    
+    # ---------------------------------------------------------
+    # NEW: Aggressive Cleanup to prevent Disk Full errors
+    # ---------------------------------------------------------
+    echo "Cleaning up intermediate files..."
+    
+    # Remove large uncompressed NIfTI files used for SPM
+    rm -f "pet/${subject}_pet_avg.nii" "anat/${subject}_T1w.reoriented.nii"
+    
+    # Remove SPM output NIfTIs (sw*.nii is already gzipped above)
+    rm -f "pet/sw${subject}_pet_avg.nii" "pet/w${subject}_pet_avg.nii" "anat/y_${subject}_T1w.reoriented.nii"
+    
+    # Remove intermediate FSL files
+    rm -f "pet/${subject}_pet_crop.nii.gz" "pet/${subject}_pet_avg.nii.gz" "anat/${subject}_T1w_preproc.nii.gz"
+    
+    echo "Cleanup complete."
 fi
 
 echo "SPM Based Preprocessing Script Finished."

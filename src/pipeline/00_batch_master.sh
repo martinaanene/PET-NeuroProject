@@ -35,6 +35,8 @@ for ((i=start_sub; i<=end_sub; i++)); do
     
     echo "==================================================" | tee -a "$log_file"
     echo "Processing Subject ID: $subject_id" | tee -a "$log_file"
+    echo "Disk Usage Check:" | tee -a "$log_file"
+    df -h | tee -a "$log_file"
     echo "==================================================" | tee -a "$log_file"
     
     # Run Step 1: Data Organization (01_data_org.sh)
