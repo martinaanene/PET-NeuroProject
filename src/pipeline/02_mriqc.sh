@@ -19,7 +19,8 @@ export BIDSDIR=~/Desktop/derivatives/data/
 mkdir -p ~/Desktop/derivatives/mriqc
 mkdir -p ~/Desktop/derivatives/temp/mriqc_work
 export MRIQCDIR=~/Desktop/derivatives/mriqc
-export WORKDIR=~/Desktop/derivatives/temp/mriqc_work
+# Use system /tmp for workdir to avoid filling up home directory (which has limited space)
+export WORKDIR=/tmp/mriqc_work_sub-${1}
 # Load MRIQC module. Try specific version first, then default.
 if ! ml mriqc/24.0.2 2>/dev/null; then
     echo "Specific mriqc version not found, trying default..."
