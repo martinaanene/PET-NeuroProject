@@ -36,6 +36,7 @@ SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
 PROJECT_ROOT="$(dirname "$(dirname "$SCRIPT_DIR")")"
 
 cd ~/Desktop/derivatives/data/${subject}/pet/
+pet_dir=$(pwd)
 
 # Path to the CSV file
 FRAMING_CSV="${PROJECT_ROOT}/data/references/framing_info.csv"
