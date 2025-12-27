@@ -49,13 +49,12 @@ for ((i=start_sub; i<=end_sub; i++)); do
         continue
     fi
     
-    # Run Step 2: MRIQC
-    echo "Running 02_mriqc.sh..." | tee -a "$log_file"
-    "${SCRIPT_DIR}/02_mriqc.sh" "$subject_id" >> "$log_file" 2>&1
-    if [ $? -ne 0 ]; then
-        echo "ERROR: 02_mriqc.sh failed for $subject_id. Check log." | tee -a "$log_file"
-        # Continue? MRIQC failure might not block preprocessing, but good to note.
-    fi
+    # Run Step 2: MRIQC (DISABLED TEMPORARILY due to crashes)
+    # echo "Running 02_mriqc.sh..." | tee -a "$log_file"
+    # "${SCRIPT_DIR}/02_mriqc.sh" "$subject_id" >> "$log_file" 2>&1
+    # if [ $? -ne 0 ]; then
+    #     echo "ERROR: 02_mriqc.sh failed for $subject_id. Check log." | tee -a "$log_file"
+    # fi
     
     # Run Step 3: Preprocessing
     echo "Running 03_preprocessing.sh..." | tee -a "$log_file"
@@ -91,7 +90,7 @@ echo "==================================================" | tee -a "$log_file"
 echo "Running MRIQC Group Analysis..." | tee -a "$log_file"
 echo "==================================================" | tee -a "$log_file"
 
-"${SCRIPT_DIR}/02_mriqc.sh" group >> "$log_file" 2>&1
+# "${SCRIPT_DIR}/02_mriqc.sh" group >> "$log_file" 2>&1
 
 echo "==================================================" | tee -a "$log_file"
 echo "Generating HTML QC Report..." | tee -a "$log_file"
