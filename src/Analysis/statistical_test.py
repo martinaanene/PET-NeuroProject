@@ -72,6 +72,11 @@ def main():
         
         # Define Output Dir
         output_dir = os.path.join(project_root, "results", "reports")
+        
+        # Ensure output directory exists (Local)
+        if not os.path.exists(output_dir):
+            os.makedirs(output_dir)
+            print(f"Created output directory: {output_dir}")
 
 
     # --- 2. CHECK INPUT FILES ---
