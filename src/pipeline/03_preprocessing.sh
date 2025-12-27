@@ -47,21 +47,78 @@ end_frame=$(echo "$range" | cut -d'-' -f2)
 start_idx=$((start_frame - 1))
 num_frames=$((end_frame - start_frame + 1))
 
-echo "Averaging frames $start_frame to $end_frame..."
+# --- Step 1: Motion Correction (SPM Realignment) ---
+# ---------------------------------------------------------------------------------
+# Instead of simple averaging, we use SPM Realignment for Motion Correction
 
-# Check total frames in the image
-total_frames=$(fslval ${subject}_pet.nii.gz dim4)
+# 1a. Extract frames for realignment
+echo "Extracting frames for realignment..."
+mkdir -p "frames"
+# Convert 4D NIfTI to separate 3D NIfTIs
+# Use fslsplit. Output prefix: vol_
+fslsplit "${subject}_pet.nii.gz" "frames/vol_"
 
+# Get list of frames (absolute paths)
+frame_list=""
+# Note: fslsplit numbers them vol_0000.nii.gz, vol_0001.nii.gz
+for ((i=start_frame; i<=end_frame; i++)); do
+    padded_num=$(printf "%04d" $i)
+    # Gunzip them for SPM compatibility
+    gunzip -f "frames/vol_${padded_num}.nii.gz"
+    frame_list="$frame_list '$(pwd)/frames/vol_${padded_num}.nii',"
+done
 
-required_frames=$((start_idx + num_frames))
-if [ "$total_frames" -lt "$required_frames" ]; then
-    echo "ERROR: Image has only $total_frames frames, but configuration requires up to frame $end_frame (requiring $required_frames total frames)."
-    echo "Current configuration in framing_info.csv might be incorrect for this subject."
+# Remove trailing comma
+frame_list="${frame_list%,}"
+
+# 1b. Run SPM Realignment
+echo "Running SPM Realignment..."
+job_file="${SCRIPT_DIR}/matlab_motion_correction.m"
+runner_script="$(pwd)/run_realign.m"
+
+# Create a temporary runner script
+cat <<EOF > "$runner_script"
+% Define inputs
+inputs = {{$frame_list}'};
+% Run job
+run('$job_file');
+exit;
+EOF
+
+# Run MATLAB/SPM
+if command -v matlab &> /dev/null; then
+    matlab -nodisplay -nosplash -nodesktop -r "run('$runner_script');"
+elif command -v spm12 &> /dev/null; then
+    spm12 batch "$runner_script"
+else
+    echo "Using default 'matlab' command..."
+    matlab -nodisplay -nosplash -nodesktop -r "run('$runner_script');"
+fi
+
+# 1c. Define the new 'Mean PET' for downstream analysis
+# SPM Realign creates a file starting with 'mean' in the frames folder
+mean_realigned_image=$(find "$(pwd)/frames" -name "meanvol_*.nii" | head -n 1)
+
+if [ -z "$mean_realigned_image" ]; then
+    echo "ERROR: Mean realigned image not found. Motion correction failed."
     exit 1
 fi
 
-fslroi ${subject}_pet.nii.gz ${subject}_pet_crop.nii.gz $start_idx $num_frames
-fslmaths ${subject}_pet_crop.nii.gz -Tmean ${subject}_pet_avg.nii.gz
+echo "Motion Correction Complete."
+echo "Mean Realigned Image: $mean_realigned_image"
+
+# Move and rename for consistency (so the rest of the script works as is)
+mv "$mean_realigned_image" "${subject}_pet_avg.nii"
+# Also clean up the 'frames' folder to save space
+rm -rf "frames" "$runner_script"
+
+# Reorient for consistency with standard space
+fslreorient2std "${subject}_pet_avg.nii" "${subject}_pet_avg_reoriented.nii"
+mv "${subject}_pet_avg_reoriented.nii" "${subject}_pet_avg.nii"
+
+# Skip the old averaging logic
+# fslroi ${subject}_pet.nii.gz ${subject}_pet_crop.nii.gz $start_idx $num_frames
+# fslmaths ${subject}_pet_crop.nii.gz -Tmean ${subject}_pet_avg.nii.gz
 # Reorient for consistency with standard space
 fslreorient2std ${subject}_pet_avg.nii.gz ${subject}_pet_avg_reoriented.nii.gz
 mv ${subject}_pet_avg_reoriented.nii.gz ${subject}_pet_avg.nii.gz
