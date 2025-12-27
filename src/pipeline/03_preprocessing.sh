@@ -146,8 +146,11 @@ mv "$mean_realigned_image" "${subject}_pet_avg.nii"
 rm -rf "frames" "$runner_script"
 
 # Reorient for consistency with standard space
-fslreorient2std "${subject}_pet_avg.nii" "${subject}_pet_avg_reoriented.nii"
-mv "${subject}_pet_avg_reoriented.nii" "${subject}_pet_avg.nii"
+# Reorient for consistency with standard space
+# Note: FSL usually outputs .nii.gz (NIFTI_GZ) by default. We handle that explicitly.
+fslreorient2std "${subject}_pet_avg.nii" "${subject}_pet_avg_reoriented.nii.gz"
+mv "${subject}_pet_avg_reoriented.nii.gz" "${subject}_pet_avg.nii.gz"
+gunzip -f "${subject}_pet_avg.nii.gz"
 
 # Skip the old averaging logic
 # fslroi ${subject}_pet.nii.gz ${subject}_pet_crop.nii.gz $start_idx $num_frames
