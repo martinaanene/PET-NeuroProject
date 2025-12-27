@@ -60,8 +60,8 @@ cd ~/Desktop/derivatives/data/${subject}/anat
 # Run participant-level QC
 # Note: MRIQC might need the full subject list or can run on one participant
 # If running on one participant:
-# Added limits: --nprocs 4 --mem_gb 10 to prevent crashing the server
-mriqc $BIDSDIR $MRIQCDIR participant --participant-label $subject_id -w $WORKDIR --nprocs 4 --mem_gb 10
+# Added strict limits: --nprocs 2 --mem_gb 6 to prevent crashing the server
+mriqc $BIDSDIR $MRIQCDIR participant --participant-label $subject_id -w $WORKDIR --nprocs 2 --mem_gb 6
 
 # Clean up work directory to save space
 echo "Cleaning up MRIQC work directory: $WORKDIR"
