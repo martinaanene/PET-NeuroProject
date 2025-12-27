@@ -61,6 +61,10 @@ cd ~/Desktop/derivatives/data/${subject}/anat
 # If running on one participant:
 mriqc $BIDSDIR $MRIQCDIR participant --participant-label $subject_id -w $WORKDIR
 
+# Clean up work directory to save space
+echo "Cleaning up MRIQC work directory: $WORKDIR"
+rm -rf "$WORKDIR"
+
 # Step 3: View MRIQC Results
 # cd $MRIQCDIR
 # open ${subject}_T1w.html
