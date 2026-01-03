@@ -107,7 +107,7 @@ matlabbatch{1}.spm.spatial.realign.estwrite.eoptions.weight = '';
 matlabbatch{1}.spm.spatial.realign.estwrite.roptions.which = [2 1];
 matlabbatch{1}.spm.spatial.realign.estwrite.roptions.interp = 4;
 matlabbatch{1}.spm.spatial.realign.estwrite.roptions.wrap = [0 0 0];
-matlabbatch{1}.spm.spatial.realign.estwrite.roptions.mask = 1;
+matlabbatch{1}.spm.spatial.realign.estwrite.roptions.mask = 0;
 matlabbatch{1}.spm.spatial.realign.estwrite.roptions.prefix = 'r';
 
 spm_jobman('run', matlabbatch);
