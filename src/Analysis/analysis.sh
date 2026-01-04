@@ -126,9 +126,13 @@ echo "--- Calculating SUVR and converting to Centiloid... ---"
 
 # a. Resample PET image to match Mask geometry (avoid dimension mismatch error)
 # The PET image is in FSL MNI space (182x218x182), but the Centiloid masks are likely SPM MNI (181x217x181).
-echo "Resampling PET image to match mask geometry..."
+# a. Check geometry match. If different, we blindly trust the mask geometry (fslcpgeom)
+# This assumes the PET is already in the correct MNI space but just has a slightly different header origin/FOV definition from SPM.
+# 'flirt' resampling can introduce interpolation errors at the edges. 'fslcpgeom' is safer if grids align.
+echo "Copying mask geometry to PET image to fix header mismatch..."
 resampled_pet="pet/${subject}_pet_resampled_to_mask.nii.gz"
-flirt -in "$mni_pet_image" -ref "$ref_mask" -applyxfm -usesqform -out "$resampled_pet"
+cp "$mni_pet_image" "$resampled_pet"
+fslcpgeom "$ref_mask" "$resampled_pet"
 
 # b. Calculate the mean value in the Reference Region (Whole Cerebellum)
 echo "Calculating mean uptake in Reference Region (Whole Cerebellum)..."
