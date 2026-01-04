@@ -153,6 +153,15 @@ centiloid_value=$(echo "scale=4; 100 * ($suvr - $CENTILOID_SUVR_ZERO) / ($CENTIL
 echo "Centiloid Value: $centiloid_value"
 
 # e. Append the final values to the CSV file
+# e. Remove previous results for this subject (if any) to prevent duplicates
+if [ -f "$output_csv" ]; then
+    # Use grep to exclude lines starting with the subject ID
+    # store in temp file then move back
+    grep -v "^${subject}," "$output_csv" > "${output_csv}.tmp" && mv "${output_csv}.tmp" "$output_csv"
+    echo "Removed any previous entries for ${subject} from $output_csv"
+fi
+
+# f. Append the final values to the CSV file
 echo "$subject,$ref_mean,$target_mean,$suvr,$centiloid_value" >> "$output_csv"
 
 

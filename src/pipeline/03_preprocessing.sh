@@ -38,6 +38,12 @@ PROJECT_ROOT="$(dirname "$(dirname "$SCRIPT_DIR")")"
 cd ~/Desktop/derivatives/data/${subject}/pet/
 pet_dir=$(pwd)
 
+# --- CLEANUP START: Remove old intermediate files ---
+# This ensures that if the script fails, we don't accidentally use old files.
+rm -f "realign_job.m" "sw${subject}_pet_avg.nii" "w${subject}_pet_avg.nii" "${subject}_pet_to_MNI_smoothed.nii.gz"
+echo "Removed old intermediate files."
+
+
 # Path to the CSV file
 FRAMING_CSV="${PROJECT_ROOT}/data/references/framing_info.csv"
 frame_info=$(grep "AD${subject_id}," "$FRAMING_CSV")
