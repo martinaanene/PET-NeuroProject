@@ -268,7 +268,7 @@ matlabbatch{2}.spm.spatial.preproc.warp.write = [1 1]; % Write Deformation Field
 % 3. Normalise: Write (Apply to PET)
 matlabbatch{3}.spm.spatial.normalise.write.subj.def(1) = cfg_dep('Segment: Forward Deformations', substruct('.','val', '{}',{2}, '.','val', '{}',{1}, '.','val', '{}',{1}), substruct('.','fordef', '()',{':'}));
 matlabbatch{3}.spm.spatial.normalise.write.subj.resample = {'$pet_file,1'};
-matlabbatch{3}.spm.spatial.normalise.write.woptions.bb = [-90 -126 -100; 91 91 109];
+matlabbatch{3}.spm.spatial.normalise.write.woptions.bb = [-90 -126 -72; 91 91 109];
 matlabbatch{3}.spm.spatial.normalise.write.woptions.vox = [2 2 2]; % 2mm isotropic
 matlabbatch{3}.spm.spatial.normalise.write.woptions.interp = 4;
 matlabbatch{3}.spm.spatial.normalise.write.woptions.prefix = 'w';
