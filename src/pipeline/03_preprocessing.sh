@@ -192,22 +192,13 @@ cat > "$spm_script" <<EOF
 spm('defaults', 'FMRI');
 spm_jobman('initcfg');
 
-% --- Auto-Reorient: Reset Origin to Center of Image ---
-% Approximates manual AC-PC alignment by centering the origin
+% --- Auto-Reorient: Template-Based AC-PC Alignment ---
+% More robust origin detection using SPM template matching
+% (Replaces geometric CoM centering which may fail for unusual brain shapes)
 files_to_reorient = {'$mri_file', '$pet_file'};
+tpm_path = fullfile(spm('Dir'), 'tpm', 'TPM.nii');
 for i = 1:numel(files_to_reorient)
-    fname = files_to_reorient{i};
-    v = spm_vol(fname);
-    M = v.mat;
-    % Calculate geometric center of volume in voxels
-    com = (v.dim(1:3)' + 1) / 2;
-    % We want this voxel coordinate to be (0,0,0) mm
-    % M_new * [com; 1] = [0; 0; 0; 1]
-    % [R T] * [com; 1] = 0  =>  R*com + T = 0  =>  T = -R*com
-    R = M(1:3, 1:3);
-    T_new = -R * com;
-    M_new = [R T_new; 0 0 0 1];
-    spm_get_space(fname, M_new);
+    spm_auto_reorient(files_to_reorient{i}, tpm_path);
 end
 
 matlabbatch = {};

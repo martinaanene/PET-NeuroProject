@@ -172,47 +172,21 @@ if [ -n "$pet_dirs" ]; then
         
         # Verify merge success
         if [ -f "${subject}_pet_merged.nii.gz" ]; then
-            echo "Merge successful. replacing original files."
+            echo "Merge successful. Replacing original files."
             
-            # ---------------------------------------------------------
-            # NEW: Merge JSON metadata using Python script
-            # ---------------------------------------------------------
-            # Gather corresponding JSONs
-            json_files=()
-            for nifti in "${files[@]}"; do
-                json_files+=("${nifti%.nii.gz}.json")
-            done
-            
-            echo "Merging JSON metadata..."
-            if command -v python3 &> /dev/null; then
-                 python3 "${SCRIPT_DIR}/fix_bids_json.py" "${subject}_pet_merged.json" "${json_files[@]}"
-            else
-                 echo "WARNING: python3 not found. Cannot merge JSONs correctly. Using the first one."
-                 cp "${json_files[0]}" "${subject}_pet_merged.json"
-            fi
-            
-            # Remove partial files (NIfTI and JSON)
+            # Remove partial NIfTI files
             rm "${files[@]}"
-            rm "${json_files[@]}"
             
-            # Rename merged files to standard name
+            # Rename merged file to standard name
             mv "${subject}_pet_merged.nii.gz" "${subject}_pet.nii.gz"
-            mv "${subject}_pet_merged.json" "${subject}_pet.json"
             
         else
             echo "ERROR: fslmerge failed."
             exit 1
         fi
     else
-        # Single file case: existing file is likely ${subject}_pet.nii.gz
-        # But we still need to fix the JSON (inject missing fields)
-        if [ -f "${subject}_pet.nii.gz" ]; then
-             echo "Single PET file detected. Fixing JSON metadata..."
-             if command -v python3 &> /dev/null; then
-                 # reformating in place (output = input)
-                 python3 "${SCRIPT_DIR}/fix_bids_json.py" "${subject}_pet.json" "${subject}_pet.json"
-             fi
-        fi
+        # Single file case: existing file is already ${subject}_pet.nii.gz
+        echo "Single PET file detected. No merging needed."
     fi
     
     # Restore IFS
