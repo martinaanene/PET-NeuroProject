@@ -192,13 +192,28 @@ cat > "$spm_script" <<EOF
 spm('defaults', 'FMRI');
 spm_jobman('initcfg');
 
-% --- Auto-Reorient: Template-Based AC-PC Alignment ---
-% More robust origin detection using SPM template matching
-% (Replaces geometric CoM centering which may fail for unusual brain shapes)
+% --- Auto-Reorient: Center of Mass Origin Reset ---
+% Reset origin to center of mass (more robust than geometric center)
+% Uses only standard SPM12 functions available in standalone
 files_to_reorient = {'$mri_file', '$pet_file'};
-tpm_path = fullfile(spm('Dir'), 'tpm', 'TPM.nii');
 for i = 1:numel(files_to_reorient)
-    spm_auto_reorient(files_to_reorient{i}, tpm_path);
+    fname = files_to_reorient{i};
+    V = spm_vol(fname);
+    Y = spm_read_vols(V);
+    Y(isnan(Y)) = 0;
+    Y(Y < 0) = 0;
+    % Calculate center of mass in voxel coordinates
+    total = sum(Y(:));
+    if total > 0
+        [X, Y_grid, Z] = ndgrid(1:V.dim(1), 1:V.dim(2), 1:V.dim(3));
+        com = [sum(X(:).*Y(:)), sum(Y_grid(:).*Y(:)), sum(Z(:).*Y(:))] / total;
+    else
+        com = (V.dim(1:3) + 1) / 2; % Fallback to geometric center
+    end
+    % Set origin to center of mass
+    M = V.mat;
+    M(1:3,4) = -M(1:3,1:3) * com';
+    spm_get_space(fname, M);
 end
 
 matlabbatch = {};
